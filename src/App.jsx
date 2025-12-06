@@ -213,7 +213,7 @@ function App() {
         
         {/* MUSIC BUTTON */}
         <a 
-          href="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_MUSIC;end"
+          href="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.sec.android.app.music;end"
           style={{
             display: 'flex',
             flexDirection: 'column',
