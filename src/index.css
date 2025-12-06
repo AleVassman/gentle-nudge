@@ -1,0 +1,21 @@
+/* src/index.css */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #121212; /* Deep dark grey */
+  color: #e0e0e0; /* Soft white text */
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+body {
+  width: 100%;
+  max-width: 600px; /* Mobile width */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+}
