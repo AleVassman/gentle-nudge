@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 // The "Database" of tasks
 const TASK_DATA = [
@@ -34,6 +34,25 @@ function App() {
     const saved = localStorage.getItem("gentle_wins");
     return saved ? parseInt(saved, 10) : 0;
   });
+
+  // AUDIO ENGINE
+  const [isPlaying, setIsPlaying] = useState(false);
+  // This holds the audio file in memory
+  const audioRef = useRef(new Audio('/rain.mp3')); 
+
+  useEffect(() => {
+    // This simple line makes the 15-second clip last for 10 hours
+    audioRef.current.loop = true; 
+  }, []);
+
+  const toggleRain = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(e => console.log(e));
+    }
+    setIsPlaying(!isPlaying);
+  };
 
   // Whenever 'wins' changes, save it to Local Storage
   useEffect(() => {
@@ -211,21 +230,23 @@ function App() {
         zIndex: 100
       }}>
         
-        {/* MUSIC BUTTON */}
-        <a 
-          href="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.sec.android.app.music;end"
+        {/* RAIN BUTTON (Replaces Music) */}
+        <div 
+          onClick={toggleRain}
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            textDecoration: 'none',
-            color: '#fff',
-            fontSize: '0.8rem'
+            cursor: 'pointer',
+            color: isPlaying ? '#4CAF50' : '#fff', // Turns Green when playing
+            transition: 'color 0.3s'
           }}
         >
-          <div style={{ fontSize: '1.8rem' }}>🎵</div>
-          <span>Music</span>
-        </a>
+          <div style={{ fontSize: '1.8rem' }}>
+            {isPlaying ? '🌧️' : '☁️'}
+          </div>
+          <span style={{ fontSize: '0.8rem' }}>Rain</span>
+        </div>
 
         {/* TIKTOK BUTTON */}
         <a 
