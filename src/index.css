@@ -17,7 +17,7 @@ body {
   margin: 0;
   display: flex;
   justify-content: center; /* Center horizontally */
-  align-items: center;     /* Center vertically */
+  /* align-items: center;     Center vertically */
   min-width: 320px;
   min-height: 100vh;
   background-attachment: fixed; /* Keeps gradient steady while scrolling */
@@ -39,4 +39,12 @@ button {
   outline: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }

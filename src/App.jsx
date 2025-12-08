@@ -135,8 +135,20 @@ function App() {
   return (
     <div style={{ 
       display: 'flex', flexDirection: 'column', gap: '20px', 
-      maxWidth: '400px', margin: '0 auto', minHeight: '100vh', justifyContent: 'center',
-      paddingBottom: '80px', fontFamily: 'Inter, sans-serif'
+      
+      /* FIXES: Force width to fill the screen, but stop at 450px */
+      width: '100%', 
+      maxWidth: '450px', 
+      
+      /* Add padding so it doesn't touch the phone edges */
+      padding: '20px', 
+      paddingBottom: '120px', // Extra space for the Dock
+      boxSizing: 'border-box',
+      
+      margin: '0 auto', 
+      minHeight: '100vh', 
+      justifyContent: 'center',
+      fontFamily: 'Inter, sans-serif'
     }}>
       
       {/* HEADER */}
