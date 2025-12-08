@@ -1,21 +1,42 @@
-/* src/index.css */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  background-color: #121212; /* Deep dark grey */
-  color: #e0e0e0; /* Soft white text */
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* The "Midnight Aurora" Gradient */
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  
+  color: #e2e8f0;
+  
+  /* Smoother fonts */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  width: 100%;
-  max-width: 600px; /* Mobile width */
-  padding: 20px;
-  box-sizing: border-box;
+  margin: 0;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  min-width: 320px;
+  min-height: 100vh;
+  background-attachment: fixed; /* Keeps gradient steady while scrolling */
+}
+
+/* Make scrollbars darker/invisible */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  background: #334155; 
+  border-radius: 4px;
 }
 
 button {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
 }

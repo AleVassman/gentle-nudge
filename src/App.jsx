@@ -1,53 +1,36 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-// THE DEFAULT TASKS
-// This list is used only if the user hasn't saved their own custom list yet.
+// THE DEFAULT TASKS (Backup list)
 const DEFAULT_TASKS = [
-  // TIER 1: Survival (0-10%) - Passive Comfort
   { text: "Open Samsung Music. Play that one song that always helps.", tier: 1, type: "comfort" },
   { text: "Open TikTok. Find 3 funny videos.", tier: 1, type: "distraction" },
   { text: "Close your eyes. Just sleep.", tier: 1, type: "rest" },
   { text: "Unclench your jaw.", tier: 1, type: "physical" },
-  
-  // TIER 2: Low Power (11-30%) - Minimal Action
   { text: "Go to the window/outside and have a smoke.", tier: 2, type: "break" },
   { text: "Drink a glass of water.", tier: 2, type: "health" },
   { text: "Sit up in bed.", tier: 2, type: "physical" },
   { text: "Splash water on your face.", tier: 2, type: "hygiene" },
-
-  // TIER 3: Rebooting (31-60%) - Small Wins
   { text: "Brush your teeth.", tier: 3, type: "hygiene" },
   { text: "Put the dirty dishes in the sink.", tier: 3, type: "tidying" },
   { text: "Change your shirt.", tier: 3, type: "hygiene" },
-
-  // TIER 4: Online (61%+) - Productivity
   { text: "Take a shower.", tier: 4, type: "hygiene" },
   { text: "Make a simple meal.", tier: 4, type: "health" },
   { text: "Clean one corner of the room.", tier: 4, type: "tidying" }
 ];
-
 function App() {
   // --- STATE MANAGEMENT ---
-
-  // 1. SETTINGS MODE: Are we looking at the dashboard or the editor?
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // 2. THE TASKS DATABASE: Loads from phone memory, or falls back to defaults
   const [allTasks, setAllTasks] = useState(() => {
     const saved = localStorage.getItem("gentle_tasks");
-    if (saved) {
-      return JSON.parse(saved);
-    } else {
-      return DEFAULT_TASKS;
-    }
+    return saved ? JSON.parse(saved) : DEFAULT_TASKS;
   });
 
-  // Save tasks automatically whenever they change
   useEffect(() => {
     localStorage.setItem("gentle_tasks", JSON.stringify(allTasks));
   }, [allTasks]);
 
-  // 3. WINS COUNTER: Loads from memory
   const [wins, setWins] = useState(() => {
     const saved = localStorage.getItem("gentle_wins");
     return saved ? parseInt(saved, 10) : 0;
@@ -57,24 +40,22 @@ function App() {
     localStorage.setItem("gentle_wins", wins);
   }, [wins]);
 
-  // 4. APP STATE: Energy level and Current Card
   const [energy, setEnergy] = useState(null);
   const [currentTask, setCurrentTask] = useState(null);
 
-  // The Tier Definitions
   const tiers = [
     { level: 1, label: "Survival", desc: "I can barely exist." },
     { level: 2, label: "Low Power", desc: "I can sit up." },
     { level: 3, label: "Rebooting", desc: "I can move a bit." },
     { level: 4, label: "Online", desc: "Ready to do things." }
   ];
-  // --- SEAMLESS AUDIO ENGINE (Web Audio API) ---
+
+  // --- SEAMLESS AUDIO ENGINE ---
   const [isPlaying, setIsPlaying] = useState(false);
   const audioCtxRef = useRef(null);
   const sourceNodeRef = useRef(null);
 
   const toggleRain = async () => {
-    // Setup Audio Context if needed
     if (!audioCtxRef.current) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtxRef.current = new AudioContext();
@@ -82,32 +63,22 @@ function App() {
     const ctx = audioCtxRef.current;
 
     if (isPlaying) {
-      // STOP Logic
       if (sourceNodeRef.current) {
         sourceNodeRef.current.stop();
         sourceNodeRef.current = null;
       }
       setIsPlaying(false);
     } else {
-      // START Logic
-      if (ctx.state === 'suspended') {
-        await ctx.resume();
-      }
-
+      if (ctx.state === 'suspended') await ctx.resume();
       try {
-        // Fetch the file from the public folder
         const response = await fetch('/rain.mp3');
         const arrayBuffer = await response.arrayBuffer();
-        
-        // Decode and play seamlessly
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
         const source = ctx.createBufferSource();
         source.buffer = audioBuffer;
-        source.loop = true; // No gaps!
-        
+        source.loop = true;
         source.connect(ctx.destination);
         source.start();
-        
         sourceNodeRef.current = source;
         setIsPlaying(true);
       } catch (error) {
@@ -115,42 +86,31 @@ function App() {
       }
     }
   };
-  // --- LOGIC FUNCTIONS ---
 
-  // Pick a random task based on energy level
+  // --- HELPER FUNCTIONS ---
   const getTask = (level) => {
-    // Filter tasks by the chosen tier
     const tierTasks = allTasks.filter(t => t.tier === level);
-
     let pool = tierTasks;
-    
-    // Don't show the same card twice in a row (if possible)
     if (currentTask && tierTasks.length > 1) {
       pool = tierTasks.filter(t => t.text !== currentTask.text);
     }
-    
-    // Safety check: Empty tier?
     if (pool.length === 0) {
-      setCurrentTask({ text: "No tasks found for this tier. Go to settings to add some!", tier: level });
+      setCurrentTask({ text: "No tasks found. Add some in settings!", tier: level });
       return;
     }
-
     const randomIndex = Math.floor(Math.random() * pool.length);
     setCurrentTask(pool[randomIndex]);
   };
 
-  // Handle Initial Selection
   const handleSelect = (level) => {
     setEnergy(level);
     getTask(level);
   };
 
-  // Handle "I Did It"
   const handleComplete = () => {
     setWins(wins + 1);
     getTask(energy);
   };
-  // --- THE USER INTERFACE ---
   return (
     <div style={{ 
       display: 'flex', flexDirection: 'column', gap: '20px', 
@@ -158,7 +118,7 @@ function App() {
       paddingBottom: '80px', fontFamily: 'Inter, sans-serif'
     }}>
       
-      {/* HEADER: Scoreboard + Settings Toggle */}
+      {/* HEADER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
         <span style={{ 
           fontSize: '1rem', fontWeight: 'bold', color: '#4CAF50',
@@ -168,23 +128,27 @@ function App() {
           Wins: {wins}
         </span>
 
-        <button 
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsSettingsOpen(!isSettingsOpen)}
           style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
         >
           {isSettingsOpen ? '✖️' : '⚙️'}
-        </button>
+        </motion.button>
       </div>
 
-      {/* VIEW SWITCHER: Settings vs Main App */}
+      {/* VIEW SWITCHER */}
       {isSettingsOpen ? (
         
-        /* --- SETTINGS EDITOR VIEW --- */
-        <div style={{ backgroundColor: '#1e1e1e', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}>
+        /* --- SETTINGS VIEW --- */
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ backgroundColor: 'rgba(30,30,30,0.9)', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}
+        >
           <h2>Task Editor</h2>
           <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Customize your deck here.</p>
           
-          {/* Scrollable Task List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto' }}>
             {allTasks.map((task, index) => (
               <div key={index} style={{ 
@@ -195,13 +159,12 @@ function App() {
                   <span style={{ color: '#888', fontSize: '0.7rem', display: 'block' }}>TIER {task.tier}</span>
                   {task.text}
                 </div>
-                {/* Delete Button */}
                 <button 
                   onClick={() => {
                     const newTasks = allTasks.filter((_, i) => i !== index);
                     setAllTasks(newTasks);
                   }}
-                  style={{ background: '#552222', color: '#ffaaaa', border: 'none', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer' }}
+                  style={{ background: '#552222', color: '#ffaaaa', border: 'none', padding: '5px 10px', borderRadius: '5px' }}
                 >
                   Del
                 </button>
@@ -209,7 +172,6 @@ function App() {
             ))}
           </div>
 
-          {/* Add New Task Form */}
           <div style={{ marginTop: '20px', borderTop: '1px solid #444', paddingTop: '20px' }}>
              <h3>Add New</h3>
              <form onSubmit={(e) => {
@@ -217,7 +179,6 @@ function App() {
                const text = e.target.elements.taskText.value;
                const tier = parseInt(e.target.elements.tierSelect.value);
                if(!text) return;
-               
                setAllTasks([...allTasks, { text, tier, type: 'custom' }]);
                e.target.reset();
              }}>
@@ -229,40 +190,53 @@ function App() {
                    <option value="3">Tier 3 (Reboot)</option>
                    <option value="4">Tier 4 (Online)</option>
                  </select>
-                 <button type="submit" style={{ padding: '10px 20px', borderRadius: '5px', background: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>Add</button>
+                 <button type="submit" style={{ padding: '10px 20px', borderRadius: '5px', background: '#4CAF50', color: 'white', border: 'none' }}>Add</button>
                </div>
              </form>
           </div>
-        </div>
+        </motion.div>
       ) : (
         /* --- MAIN APP VIEW --- */
         <>
           {energy === null ? (
-            /* SCENE 1: Energy Dashboard */
+            /* SCENE 1: Energy Dashboard (Animated Buttons) */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                <h2 style={{ textAlign: 'center' }}>Where is your battery at?</h2>
                {tiers.map((tier) => (
-                 <button 
+                 <motion.button 
                    key={tier.level}
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.95 }}
                    onClick={() => handleSelect(tier.level)}
                    style={{
-                     padding: '20px', fontSize: '1.2rem', borderRadius: '12px',
-                     border: 'none', backgroundColor: '#2a2a2a', color: 'white', textAlign: 'left',
-                     cursor: 'pointer', transition: '0.2s'
+                     padding: '20px', fontSize: '1.2rem', borderRadius: '16px',
+                     border: '1px solid rgba(255,255,255,0.05)', 
+                     backgroundColor: 'rgba(255,255,255,0.05)',
+                     backdropFilter: 'blur(5px)',
+                     color: 'white', textAlign: 'left',
+                     cursor: 'pointer', marginBottom: '10px', width: '100%'
                    }}
                  >
                    <strong>{tier.label}</strong><br/>
                    <span style={{ fontSize: '0.9rem', opacity: 0.7 }}>{tier.desc}</span>
-                 </button>
+                 </motion.button>
                ))}
             </div>
           ) : (
-            /* SCENE 2: The Action Card */
-            <div style={{ 
-                backgroundColor: '#1e1e1e', padding: '30px', borderRadius: '20px', textAlign: 'center',
-                border: '1px solid #333', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', position: 'relative'
-            }}>
-              {/* Close Button */}
+            /* SCENE 2: The Action Card (Floating Animation) */
+            <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              style={{ 
+                  backgroundColor: 'rgba(30, 30, 30, 0.8)', 
+                  backdropFilter: 'blur(15px)',
+                  padding: '30px', borderRadius: '25px', textAlign: 'center',
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.5)', position: 'relative'
+              }}
+            >
               <button 
                 onClick={() => setEnergy(null)} 
                 style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#666', fontSize: '1.5rem', cursor: 'pointer' }}
@@ -270,38 +244,54 @@ function App() {
                 ×
               </button>
               
-              {/* Task Text */}
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '40px', marginTop: '20px', lineHeight: '1.4' }}>
-                {currentTask ? currentTask.text : "Loading..."}
-              </h2>
+              {/* ANIMATED TEXT SWITCHER */}
+              <div style={{ minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AnimatePresence mode='wait'>
+                  <motion.h2 
+                    key={currentTask ? currentTask.text : "loading"} 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ fontSize: '1.8rem', lineHeight: '1.4', margin: 0 }}
+                  >
+                    {currentTask ? currentTask.text : "Loading..."}
+                  </motion.h2>
+                </AnimatePresence>
+              </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button 
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '30px' }}>
+                <motion.button 
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => getTask(energy)} 
                   style={{ padding: '15px 25px', borderRadius: '50px', border: 'none', backgroundColor: '#333', color: '#aaa', fontWeight: 'bold', cursor: 'pointer' }}
                 >
                   Skip
-                </button>
-                <button 
+                </motion.button>
+                <motion.button 
+                  whileTap={{ scale: 0.9 }}
                   onClick={handleComplete} 
-                  style={{ padding: '15px 30px', borderRadius: '50px', border: 'none', backgroundColor: '#4CAF50', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer' }}
+                  style={{ 
+                    padding: '15px 30px', borderRadius: '50px', border: 'none', 
+                    background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)', 
+                    color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)'
+                  }}
                 >
                   I Did It
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           )}
         </>
       )}
-      {/* --- COMFORT DOCK (Always Visible) --- */}
+      {/* --- COMFORT DOCK --- */}
       <div style={{
         position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
         display: 'flex', gap: '20px', backgroundColor: '#2a2a2a', padding: '10px 20px',
         borderRadius: '30px', boxShadow: '0 5px 20px rgba(0,0,0,0.5)', border: '1px solid #444', zIndex: 100
       }}>
-        
-        {/* Rain Toggle */}
         <div 
            onClick={toggleRain} 
            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isPlaying ? '#4CAF50' : '#fff', transition: 'color 0.3s' }}
@@ -310,7 +300,6 @@ function App() {
            <span style={{ fontSize: '0.8rem' }}>Rain</span>
         </div>
 
-        {/* TikTok Link */}
         <a 
            href="https://www.tiktok.com/" 
            target="_blank" 
@@ -320,7 +309,6 @@ function App() {
            <div style={{ fontSize: '1.8rem' }}>📺</div>
            <span style={{ fontSize: '0.8rem' }}>TikTok</span>
         </a>
-
       </div>
 
     </div>
