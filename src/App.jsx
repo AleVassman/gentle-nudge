@@ -35,23 +35,57 @@ function App() {
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  // AUDIO ENGINE
+  // --- SEAMLESS AUDIO ENGINE ---
   const [isPlaying, setIsPlaying] = useState(false);
-  // This holds the audio file in memory
-  const audioRef = useRef(new Audio('/rain.mp3')); 
+  const audioCtxRef = useRef(null);
+  const sourceNodeRef = useRef(null);
 
-  useEffect(() => {
-    // This simple line makes the 15-second clip last for 10 hours
-    audioRef.current.loop = true; 
-  }, []);
-
-  const toggleRain = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(e => console.log(e));
+  const toggleRain = async () => {
+    // 1. Setup the Audio Context if it doesn't exist
+    if (!audioCtxRef.current) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtxRef.current = new AudioContext();
     }
-    setIsPlaying(!isPlaying);
+    const ctx = audioCtxRef.current;
+
+    if (isPlaying) {
+      // STOP
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current = null;
+      }
+      setIsPlaying(false);
+    } else {
+      // START
+      // We resume the context (browsers require this after user interaction)
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
+      try {
+        // Fetch the file
+        const response = await fetch('/rain.mp3');
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Decode the audio (Turn file into raw sound data)
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+        // Create a "Source Node"
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.loop = true; // <--- THIS is what makes it gapless!
+        
+        // Connect to speakers
+        source.connect(ctx.destination);
+        source.start();
+        
+        // Save reference so we can stop it later
+        sourceNodeRef.current = source;
+        setIsPlaying(true);
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
+    }
   };
 
   // Whenever 'wins' changes, save it to Local Storage
