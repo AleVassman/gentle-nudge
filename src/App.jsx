@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -169,6 +169,49 @@ function App() {
     setCurrentTask(pool[randomIndex]);
   };
 
+  // --- BACKUP & RESTORE LOGIC ---
+  const handleBackup = () => {
+    // 1. Gather all data
+    const data = {
+      tasks: localStorage.getItem("gentle_tasks"),
+      history: localStorage.getItem("gentle_history"),
+      wins: localStorage.getItem("gentle_wins")
+    };
+    
+    // 2. Create a downloadable file
+    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `nudge-backup-${new Date().toISOString().split('T')[0]}.json`; // e.g. nudge-backup-2023-12-09.json
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleRestore = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        
+        // 3. Safety Check & Restore
+        if (data.tasks) localStorage.setItem("gentle_tasks", data.tasks);
+        if (data.history) localStorage.setItem("gentle_history", data.history);
+        if (data.wins) localStorage.setItem("gentle_wins", data.wins);
+        
+        alert("Restore successful! App will reload.");
+        window.location.reload(); // Reload to apply changes
+      } catch (err) {
+        alert("Error: Invalid backup file.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleSelect = (level) => {
     setEnergy(level);
     getTask(level);
@@ -291,6 +334,42 @@ function App() {
                  </button>
                </div>
           </form>
+
+          {/* DATA MANAGEMENT SECTION */}
+          <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
+            <h3 style={{ fontSize: '1rem', marginBottom: '15px', color: '#aaa' }}>Data Backup</h3>
+            
+            <div style={{ display: 'flex', gap: '10px' }}>
+              
+              {/* BACKUP BUTTON */}
+              <button 
+                onClick={handleBackup}
+                style={{ 
+                  flex: 1, padding: '12px', borderRadius: '10px', 
+                  background: '#334155', color: '#e2e8f0', border: '1px solid #475569',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
+                }}
+              >
+                <Download size={18} /> Save
+              </button>
+
+              {/* RESTORE BUTTON (Hidden Input Trick) */}
+              <label 
+                style={{ 
+                  flex: 1, padding: '12px', borderRadius: '10px', 
+                  background: '#334155', color: '#e2e8f0', border: '1px solid #475569',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer'
+                }}
+              >
+                <Upload size={18} /> Load
+                <input type="file" accept=".json" onChange={handleRestore} style={{ display: 'none' }} />
+              </label>
+
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '10px', textAlign: 'center' }}>
+              Save your file to keep your history safe.
+            </p>
+          </div>
         </motion.div>
 
       ) : isVoidOpen ? (
