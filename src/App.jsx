@@ -597,22 +597,27 @@ function App() {
         </>
       )}
 
-      {/* --- COMFORT DOCK (The Toolbox) --- */}
+      {/* --- COMFORT DOCK (Perfect Alignment) --- */}
       <div style={{
         position: 'fixed', 
         bottom: '30px', 
         left: '50%', 
         transform: 'translateX(-50%)',
         
-        display: 'flex', 
-        gap: '25px', // Reduced slightly to fit 4 items comfortably
-        alignItems: 'flex-end', // Aligns icons to bottom so they look straight
+        // WIDTH CALCULATIONS
+        width: 'calc(100% - 40px)', // Matches the main container margin
+        maxWidth: '410px',          // Exactly matches the max-width of the buttons above
+        boxSizing: 'border-box',    // <--- THIS IS THE FIX (Keeps padding inside)
         
-        backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        
+        backgroundColor: 'rgba(15, 23, 42, 0.85)', 
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         
-        padding: '12px 30px',
+        padding: '12px 25px',       // Comfortable spacing
         borderRadius: '24px',
         border: '1px solid rgba(255, 255, 255, 0.1)', 
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
@@ -620,7 +625,7 @@ function App() {
       }}>
         
         {/* 1. SOUND CONTROLLER */}
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
             <AnimatePresence>
                 {isSoundMenuOpen && (
                     <motion.div
@@ -645,21 +650,21 @@ function App() {
             </motion.div>
         </div>
 
-        {/* 2. BREATHE BUTTON (Moved) */}
+        {/* 2. BREATHE BUTTON */}
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openBreathing}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Wind size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Breathe</span>
         </motion.div>
 
-        {/* 3. VOID BUTTON (Moved) */}
+        {/* 3. VOID BUTTON */}
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openVoid}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Flame size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
@@ -669,7 +674,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={triggerLifeline}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
