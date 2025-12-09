@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -25,9 +25,12 @@ function App() {
   // --- STATE MANAGEMENT ---
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVoidOpen, setIsVoidOpen] = useState(false);
+  const [isBreathingOpen, setIsBreathingOpen] = useState(false);
 
-  const openSettings = () => { setIsVoidOpen(false); setIsSettingsOpen(!isSettingsOpen); };
-  const openVoid = () => { setIsSettingsOpen(false); setIsVoidOpen(!isVoidOpen); };
+  const openSettings = () => { setIsVoidOpen(false); setIsBreathingOpen(false); setIsSettingsOpen(!isSettingsOpen); };
+  const openVoid = () => { setIsSettingsOpen(false); setIsBreathingOpen(false); setIsVoidOpen(!isVoidOpen); };
+  const openBreathing = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(!isBreathingOpen); };
+  
 
   // VOID LOGIC
   const [voidText, setVoidText] = useState("");
@@ -163,6 +166,13 @@ function App() {
         </span>
 
         <div style={{ display: 'flex', gap: '15px' }}>
+          <motion.button 
+            whileTap={{ scale: 0.9 }} onClick={openBreathing}
+            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isBreathingOpen ? 1 : 0.5 }}
+            >
+            {isBreathingOpen ? <X size={28} /> : <Wind size={28} />}
+            </motion.button>
+
             <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openVoid}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isVoidOpen ? 1 : 0.5 }}
@@ -263,7 +273,63 @@ function App() {
             </motion.button>
         </motion.div>
 
-      ) : (
+      ) : isBreathingOpen ? (
+
+        /* --- VIEW 3: BREATHING CIRCLE --- */
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+            style={{ 
+                backgroundColor: 'rgba(0, 20, 40, 0.8)', // Deep Blue
+                backdropFilter: 'blur(10px)',
+                padding: '30px', borderRadius: '25px', textAlign: 'center',
+                border: '1px solid rgba(50, 100, 255, 0.2)', 
+                boxShadow: '0 0 50px rgba(0, 100, 255, 0.1)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                minHeight: '400px'
+            }}
+        >
+            <h2 style={{ color: '#aaccff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Wind /> Breathe
+            </h2>
+            
+            {/* The Breathing Animation */}
+            <div style={{ position: 'relative', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '40px 0' }}>
+                
+                {/* The Outer Ghost Circle (Max Size) */}
+                <div style={{ position: 'absolute', width: '100%', height: '100%', border: '2px dashed rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+
+                {/* The Moving Circle */}
+                <motion.div
+                    animate={{ 
+                        scale: [1, 2, 2, 1], // Small -> Big -> Hold -> Small
+                        opacity: [0.5, 1, 1, 0.5]
+                    }}
+                    transition={{ 
+                        duration: 12, // 4s In, 4s Hold, 4s Out
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        times: [0, 0.33, 0.66, 1] // Timing points
+                    }}
+                    style={{
+                        width: '80px', height: '80px',
+                        backgroundColor: '#4dabf7',
+                        borderRadius: '50%',
+                        boxShadow: '0 0 30px #4dabf7'
+                    }}
+                />
+                
+                {/* Text prompts that change with time? For MVP, let's keep it simple text */}
+                <div style={{ position: 'absolute', pointerEvents: 'none', fontWeight: 'bold', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                    4-4-4
+                </div>
+            </div>
+
+            <p style={{ opacity: 0.7, fontSize: '0.9rem', maxWidth: '80%' }}>
+                Breathe in as it grows.<br/>Hold.<br/>Breathe out as it shrinks.
+            </p>
+        </motion.div> 
+        
+      )  : (
 
         /* MAIN APP VIEW */
         <>
