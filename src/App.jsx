@@ -325,7 +325,7 @@ function App() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
             <Settings size={20} />
-            <h2 style={{ margin: 0 }}>Task Editor</h2>
+            <h2 style={{ margin: 0 }}>Settings</h2>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto' }}>
@@ -350,7 +350,7 @@ function App() {
              }} style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #444' }}>
                <input name="taskText" placeholder="New task..." style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '5px', border: 'none', boxSizing: 'border-box', backgroundColor: '#333', color: 'white' }} />
                <div style={{ display: 'flex', gap: '10px' }}>
-                 <select name="tierSelect" style={{ padding: '10px', borderRadius: '5px', flex: 1, backgroundColor: '#333', color: 'white', border: 'none' }}><option value="1">'Survival' Task</option><option value="2">'Low Power' Task</option><option value="3">'Rebooting' Task</option><option value="4">'Online' Task</option></select>
+                 <select name="tierSelect" style={{ padding: '10px', borderRadius: '5px', flex: 1, backgroundColor: '#333', color: 'white', border: 'none' }}><option value="1">Survival Task</option><option value="2">Low Power Task</option><option value="3">Rebooting Task</option><option value="4">Online Task</option></select>
                  <button type="submit" style={{ padding: '10px 15px', borderRadius: '5px', background: '#4CAF50', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Plus size={20} />
                  </button>
