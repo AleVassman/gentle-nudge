@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -62,6 +62,27 @@ function App() {
     const saved = localStorage.getItem("gentle_tasks");
     return saved ? JSON.parse(saved) : DEFAULT_TASKS;
   });
+
+  // --- LIFELINE DATA ---
+  const [lifeline, setLifeline] = useState(() => {
+    const saved = localStorage.getItem("gentle_lifeline");
+    return saved ? JSON.parse(saved) : { number: "", message: "I'm having a low energy day. Send me a meme?" };
+  });
+
+  useEffect(() => {
+    localStorage.setItem("gentle_lifeline", JSON.stringify(lifeline));
+  }, [lifeline]);
+
+  const triggerLifeline = () => {
+    if (!lifeline.number) {
+      alert("Please set a phone number in Settings first!");
+      openSettings();
+      return;
+    }
+    // Format for WhatsApp: https://wa.me/1234567890?text=Hello
+    const url = `https://wa.me/${lifeline.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(lifeline.message)}`;
+    window.open(url, '_blank');
+  };
 
   useEffect(() => {
     localStorage.setItem("gentle_tasks", JSON.stringify(allTasks));
@@ -334,6 +355,28 @@ function App() {
                  </button>
                </div>
           </form>
+
+          {/* LIFELINE SETUP */}
+          <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
+            <h3 style={{ fontSize: '1rem', marginBottom: '15px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px' }}>
+               <MessageCircle size={16} /> Lifeline Contact
+            </h3>
+            
+            <input 
+              placeholder="Number (e.g. 393331234567)" 
+              value={lifeline.number}
+              onChange={(e) => setLifeline({ ...lifeline, number: e.target.value })}
+              style={{ width: '100%', boxSizing: 'border-box', padding: '12px', marginBottom: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#333', color: 'white' }} 
+            />
+            <p style={{ fontSize: '0.7rem', color: '#666', marginBottom: '10px' }}>Include Country Code (e.g., 39 for Italy). No + symbol.</p>
+
+            <textarea 
+              placeholder="Message..." 
+              value={lifeline.message}
+              onChange={(e) => setLifeline({ ...lifeline, message: e.target.value })}
+              style={{ width: '100%', boxSizing: 'border-box', height: '60px', padding: '12px', borderRadius: '5px', border: 'none', backgroundColor: '#333', color: 'white', fontFamily: 'inherit', resize: 'none' }} 
+            />
+          </div>
 
           {/* DATA MANAGEMENT SECTION */}
           <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
@@ -673,6 +716,16 @@ function App() {
             </motion.div>
 
         </div>
+
+        {/* LIFELINE BUTTON */}
+        <motion.div 
+           whileTap={{ scale: 0.9 }}
+           onClick={triggerLifeline}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0' }}
+        >
+           <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
+        </motion.div>
 
         {/* TIKTOK LINK */}
         <motion.a 
