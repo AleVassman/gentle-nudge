@@ -28,11 +28,11 @@ function App() {
   const [isBreathingOpen, setIsBreathingOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  // Toggle Helpers (Close others when one opens)
-  const openSettings = () => { setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsSettingsOpen(!isSettingsOpen); };
-  const openVoid = () => { setIsSettingsOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsVoidOpen(!isVoidOpen); };
-  const openBreathing = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsHistoryOpen(false); setIsBreathingOpen(!isBreathingOpen); };
-  const openHistory = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(!isHistoryOpen); };
+  // Toggle Helpers (Now with Haptics)
+  const openSettings = () => { triggerHaptic(); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsSettingsOpen(!isSettingsOpen); };
+  const openVoid = () => { triggerHaptic(); setIsSettingsOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsVoidOpen(!isVoidOpen); };
+  const openBreathing = () => { triggerHaptic(); setIsSettingsOpen(false); setIsVoidOpen(false); setIsHistoryOpen(false); setIsBreathingOpen(!isBreathingOpen); };
+  const openHistory = () => { triggerHaptic(); setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(!isHistoryOpen); };
 
   // --- DATA: HISTORY LOG ---
   const [history, setHistory] = useState(() => {
@@ -78,6 +78,7 @@ function App() {
   }, [lifeline]);
 
   const triggerLifeline = () => {
+    triggerHaptic();
     if (!lifeline.number) {
       alert("Please set a phone number in Settings first!");
       openSettings();
@@ -204,6 +205,7 @@ function App() {
 
   // --- BACKUP & RESTORE LOGIC ---
   const handleBackup = () => {
+    triggerHaptic();
     // 1. Gather all data
     const data = {
       tasks: localStorage.getItem("gentle_tasks"),
@@ -246,6 +248,7 @@ function App() {
   };
 
   const handleSelect = (level) => {
+    triggerHaptic();
     setEnergy(level);
     getTask(level);
 
@@ -329,7 +332,7 @@ function App() {
             {allTasks.map((task, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#333', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}>
                 <div style={{ flex: 1, marginRight: '10px' }}>{task.text}</div>
-                <button onClick={() => setAllTasks(allTasks.filter((_, i) => i !== index))} style={{ background: '#552222', color: '#ffaaaa', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', display: 'flex' }}>
+                <button onClick={() => {triggerHaptic(); setAllTasks(allTasks.filter((_, i) => i !== index))}} style={{ background: '#552222', color: '#ffaaaa', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', display: 'flex' }}>
                    <Trash2 size={16} />
                 </button>
               </div>
@@ -338,6 +341,7 @@ function App() {
 
           <form onSubmit={(e) => {
                e.preventDefault();
+               triggerHaptic();
                const text = e.target.elements.taskText.value;
                const tier = parseInt(e.target.elements.tierSelect.value);
                if(!text) return;
@@ -614,7 +618,7 @@ function App() {
             /* Dashboard */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                <h2 style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                 <Battery size={28} /> Check Battery
+                 <Battery size={28} /> Battery Check
                </h2>
                {tiers.map((tier) => (
                  <motion.button 
@@ -643,7 +647,7 @@ function App() {
                   border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', position: 'relative'
               }}
             >
-              <button onClick={() => setEnergy(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#666', cursor: 'pointer' }}>
+              <button onClick={() => {triggerHaptic(); setEnergy(null)}} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#666', cursor: 'pointer' }}>
                 <X size={28} />
               </button>
               
@@ -656,7 +660,7 @@ function App() {
               </div>
 
               <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '30px' }}>
-                <motion.button whileTap={{ scale: 0.9 }} onClick={() => getTask(energy)} style={{ padding: '15px 25px', borderRadius: '50px', border: 'none', backgroundColor: '#333', color: '#aaa', fontWeight: 'bold', cursor: 'pointer' }}>Skip</motion.button>
+                <motion.button whileTap={{ scale: 0.9 }} onClick={() => {triggerHaptic(); getTask(energy)}} style={{ padding: '15px 25px', borderRadius: '50px', border: 'none', backgroundColor: '#333', color: '#aaa', fontWeight: 'bold', cursor: 'pointer' }}>Skip</motion.button>
                 <motion.button whileTap={{ scale: 0.9 }} onClick={handleComplete} style={{ padding: '15px 30px', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Check size={20} /> I Did It
                 </motion.button>
@@ -706,14 +710,14 @@ function App() {
                             display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', alignItems: 'center'
                         }}
                     >
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); playSound('fire.mp3', 'fire'); }} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent', color: currentSound === 'fire' ? '#ff8787' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Flame size={20} /></motion.div>
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); playSound('rain.mp3', 'rain'); }} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent', color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloudRain size={20} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('fire.mp3', 'fire')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent', color: currentSound === 'fire' ? '#ff8787' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Flame size={20} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('rain.mp3', 'rain')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent', color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloudRain size={20} /></motion.div>
                         <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); setIsSoundMenuOpen(false); }} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}><X size={16} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}><X size={16} /></motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
-            <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); setIsSoundMenuOpen(!isSoundMenuOpen); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
+            <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(!isSoundMenuOpen)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
                 <div style={{ marginBottom: '4px' }}>{currentSound ? <Pause size={28} /> : <Play size={28} />}</div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}</span>
             </motion.div>
