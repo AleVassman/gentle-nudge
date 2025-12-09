@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -26,11 +26,23 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVoidOpen, setIsVoidOpen] = useState(false);
   const [isBreathingOpen, setIsBreathingOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  const openSettings = () => { setIsVoidOpen(false); setIsBreathingOpen(false); setIsSettingsOpen(!isSettingsOpen); };
-  const openVoid = () => { setIsSettingsOpen(false); setIsBreathingOpen(false); setIsVoidOpen(!isVoidOpen); };
-  const openBreathing = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(!isBreathingOpen); };
-  
+  // Toggle Helpers (Close others when one opens)
+  const openSettings = () => { setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsSettingsOpen(!isSettingsOpen); };
+  const openVoid = () => { setIsSettingsOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsVoidOpen(!isVoidOpen); };
+  const openBreathing = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsHistoryOpen(false); setIsBreathingOpen(!isBreathingOpen); };
+  const openHistory = () => { setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(!isHistoryOpen); };
+
+  // --- DATA: HISTORY LOG ---
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem("gentle_history");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem("gentle_history", JSON.stringify(history));
+  }, [history]);
 
   // VOID LOGIC
   const [voidText, setVoidText] = useState("");
@@ -144,6 +156,13 @@ function App() {
   const handleSelect = (level) => {
     setEnergy(level);
     getTask(level);
+
+    // NEW: Save today's mood to history
+    const today = new Date().toLocaleDateString();
+    setHistory(prev => ({
+      ...prev,
+      [today]: level // Overwrites if you change your mind today
+    }));
   };
 
   const handleComplete = () => {
@@ -182,6 +201,15 @@ function App() {
         </span>
 
         <div style={{ display: 'flex', gap: '15px' }}>
+          {/* HISTORY BUTTON (NEW) */}
+            <motion.button 
+            whileTap={{ scale: 0.9 }} onClick={openHistory}
+            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isHistoryOpen ? 1 : 0.5 }}
+            >
+            {isHistoryOpen ? <X size={28} /> : <Calendar size={28} />}
+            </motion.button>
+
+          {/* BREATHING BUTTON */}
           <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openBreathing}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isBreathingOpen ? 1 : 0.5 }}
@@ -189,6 +217,7 @@ function App() {
             {isBreathingOpen ? <X size={28} /> : <Wind size={28} />}
             </motion.button>
 
+            {/* VOID BUTTON */}
             <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openVoid}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isVoidOpen ? 1 : 0.5 }}
@@ -196,6 +225,7 @@ function App() {
             {isVoidOpen ? <X size={28} /> : <Flame size={28} />}
             </motion.button>
 
+            {/* TASKS SETTINGS BUTTON */}
             <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openSettings}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isSettingsOpen ? 1 : 0.5 }}
@@ -343,6 +373,46 @@ function App() {
             <p style={{ opacity: 0.7, fontSize: '0.9rem', maxWidth: '80%' }}>
                 Breathe in as it grows.<br/>Hold.<br/>Breathe out as it shrinks.
             </p>
+        </motion.div> 
+        
+      ) : isHistoryOpen ? (
+
+        /* --- VIEW 4: HISTORY LOG --- */
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            style={{ backgroundColor: 'rgba(30,30,30,0.9)', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <Calendar size={20} />
+            <h2 style={{ margin: 0 }}>Your Journey</h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '500px', overflowY: 'auto' }}>
+            {Object.keys(history).length === 0 ? (
+                <p style={{ opacity: 0.5, textAlign: 'center', marginTop: '20px' }}>No days recorded yet.</p>
+            ) : (
+                // Sort dates so newest is first
+                Object.entries(history).reverse().map(([date, tier]) => (
+                    <div key={date} style={{ 
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        background: '#333', padding: '15px', borderRadius: '12px',
+                        borderLeft: `4px solid ${
+                            tier === 1 ? '#555' : 
+                            tier === 2 ? '#d97706' : 
+                            tier === 3 ? '#2563eb' : '#16a34a' 
+                        }`
+                    }}>
+                        <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>{date}</span>
+                        <span style={{ 
+                            fontSize: '0.8rem', padding: '4px 10px', borderRadius: '10px',
+                            backgroundColor: 'rgba(255,255,255,0.1)', color: '#aaa'
+                        }}>
+                            {tier === 1 ? 'Survival' : tier === 2 ? 'Low Power' : tier === 3 ? 'Reboot' : 'Online'}
+                        </span>
+                    </div>
+                ))
+            )}
+          </div>
         </motion.div> 
         
       )  : (
