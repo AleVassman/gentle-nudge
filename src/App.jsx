@@ -74,40 +74,56 @@ function App() {
     { level: 4, label: "Online", desc: "Ready to do things." }
   ];
 
-  // AUDIO ENGINE
-  const [isPlaying, setIsPlaying] = useState(false);
+  // --- MULTI-TRACK AUDIO ENGINE ---
+  const [currentSound, setCurrentSound] = useState(null); 
+  const [isSoundMenuOpen, setIsSoundMenuOpen] = useState(false);
+  
   const audioCtxRef = useRef(null);
   const sourceNodeRef = useRef(null);
 
-  const toggleRain = async () => {
+  const playSound = async (filename, soundName) => {
+    // 1. Setup Context
     if (!audioCtxRef.current) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtxRef.current = new AudioContext();
     }
     const ctx = audioCtxRef.current;
 
-    if (isPlaying) {
+    // 2. Resume if suspended
+    if (ctx.state === 'suspended') await ctx.resume();
+
+    // 3. STOP logic (If clicking the same sound)
+    if (currentSound === soundName) {
       if (sourceNodeRef.current) {
         sourceNodeRef.current.stop();
         sourceNodeRef.current = null;
       }
-      setIsPlaying(false);
-    } else {
-      if (ctx.state === 'suspended') await ctx.resume();
-      try {
-        const response = await fetch('/rain.mp3');
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.loop = true;
-        source.connect(ctx.destination);
-        source.start();
-        sourceNodeRef.current = source;
-        setIsPlaying(true);
-      } catch (error) {
-        console.error("Error playing audio:", error);
-      }
+      setCurrentSound(null);
+      return;
+    }
+
+    // 4. SWITCH logic (Stop old, start new)
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+    }
+
+    try {
+      const response = await fetch('/' + filename);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = true;
+      
+      source.connect(ctx.destination);
+      source.start();
+      
+      sourceNodeRef.current = source;
+      setCurrentSound(soundName); 
+    } catch (error) {
+      console.error("Error playing audio:", error);
+      setCurrentSound(null);
     }
   };
 
@@ -389,29 +405,122 @@ function App() {
         </>
       )}
 
-      {/* COMFORT DOCK */}
+      {/* --- COMFORT DOCK (Glass Edition) --- */}
       <div style={{
-        position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', gap: '20px', backgroundColor: '#2a2a2a', padding: '10px 20px',
-        borderRadius: '30px', boxShadow: '0 5px 20px rgba(0,0,0,0.5)', border: '1px solid #444', zIndex: 100
+        position: 'fixed', 
+        bottom: '30px', // Lifted slightly higher
+        left: '50%', 
+        transform: 'translateX(-50%)',
+        
+        display: 'flex', 
+        gap: '40px', // More breathing room between icons
+        alignItems: 'center',
+        
+        // The Glass Look
+        backgroundColor: 'rgba(15, 23, 42, 0.7)', // Deep transparent blue
+        backdropFilter: 'blur(12px)',            // Blurs the content behind it
+        WebkitBackdropFilter: 'blur(12px)',      // For iPhone support
+        
+        padding: '12px 35px',
+        borderRadius: '24px',                    // Smooth squircle shape
+        
+        border: '1px solid rgba(255, 255, 255, 0.1)', // Subtle top highlight
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)', // Deep shadow for depth
+        zIndex: 100
       }}>
-        <div 
-           onClick={toggleRain} 
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isPlaying ? '#4CAF50' : '#fff', transition: 'color 0.3s' }}
-        >
-           <div style={{ marginBottom: '2px' }}>{isPlaying ? <Pause size={24} /> : <Play size={24} />}</div>
-           <span style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px' }}><CloudRain size={12} /> Rain</span>
+        
+        {/* SOUND CONTROLLER WRAPPER */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            
+            {/* THE POPUP MENU (Vertical Stack) */}
+            <AnimatePresence>
+                {isSoundMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                        style={{
+                            position: 'absolute', 
+                            bottom: '100%', 
+                            marginBottom: '20px', 
+                            
+                            backgroundColor: 'rgba(30, 30, 40, 0.9)', 
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '50px', 
+                            padding: '12px 8px',
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            gap: '12px',
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                            alignItems: 'center'
+                        }}
+                    >
+                        {/* Fire Option */}
+                        <motion.div 
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => playSound('fire.mp3', 'fire')} 
+                            style={{ 
+                                cursor: 'pointer', padding: '10px', borderRadius: '50%', 
+                                backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent',
+                                color: currentSound === 'fire' ? '#ff8787' : '#94a3b8',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                        >
+                            <Flame size={20} />
+                        </motion.div>
+
+                        {/* Rain Option */}
+                        <motion.div 
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => playSound('rain.mp3', 'rain')} 
+                            style={{ 
+                                cursor: 'pointer', padding: '10px', borderRadius: '50%',
+                                backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent',
+                                color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                        >
+                            <CloudRain size={20} />
+                        </motion.div>
+
+                        {/* Close Option */}
+                        <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}>
+                            <X size={16} />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* MAIN SOUND BUTTON */}
+            <motion.div 
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsSoundMenuOpen(!isSoundMenuOpen)} 
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}
+            >
+                <div style={{ marginBottom: '4px' }}>
+                    {currentSound ? <Pause size={28} /> : <Play size={28} />}
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>
+                    {currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}
+                </span>
+            </motion.div>
+
         </div>
 
-        <a 
+        {/* TIKTOK LINK */}
+        <motion.a 
+           whileTap={{ scale: 0.9 }}
            href="https://www.tiktok.com/" 
            target="_blank" 
            rel="noreferrer"
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#fff' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#e2e8f0' }}
         >
-           <div style={{ marginBottom: '2px' }}><Tv size={24} /></div>
-           <span style={{ fontSize: '0.7rem' }}>TikTok</span>
-        </a>
+           <div style={{ marginBottom: '4px' }}><Tv size={28} /></div>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>TikTok</span>
+        </motion.a>
+
       </div>
 
     </div>
