@@ -50,6 +50,10 @@ function App() {
 
   const handleBurn = () => {
     if (!voidText) return;
+    
+    // Pattern: Vibrate, wait, vibrate again (Rumblestrip effect)
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30]); 
+    
     setIsBurning(true);
     setTimeout(() => {
       setVoidText("");
@@ -190,6 +194,14 @@ function App() {
     setCurrentTask(pool[randomIndex]);
   };
 
+  // --- HAPTIC FEEDBACK ---
+  const triggerHaptic = () => {
+    // Only works on supported devices (mostly Android)
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Tiny 10ms vibration
+    }
+  };
+
   // --- BACKUP & RESTORE LOGIC ---
   const handleBackup = () => {
     // 1. Gather all data
@@ -246,6 +258,7 @@ function App() {
   };
 
   const handleComplete = () => {
+    triggerHaptic();
     setWins(wins + 1);
     getTask(energy);
   };
@@ -693,14 +706,14 @@ function App() {
                             display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', alignItems: 'center'
                         }}
                     >
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('fire.mp3', 'fire')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent', color: currentSound === 'fire' ? '#ff8787' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Flame size={20} /></motion.div>
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('rain.mp3', 'rain')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent', color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloudRain size={20} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); playSound('fire.mp3', 'fire'); }} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent', color: currentSound === 'fire' ? '#ff8787' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Flame size={20} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); playSound('rain.mp3', 'rain'); }} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent', color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloudRain size={20} /></motion.div>
                         <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}><X size={16} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); setIsSoundMenuOpen(false); }} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}><X size={16} /></motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
-            <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(!isSoundMenuOpen)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
+            <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); setIsSoundMenuOpen(!isSoundMenuOpen); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
                 <div style={{ marginBottom: '4px' }}>{currentSound ? <Pause size={28} /> : <Play size={28} />}</div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}</span>
             </motion.div>
