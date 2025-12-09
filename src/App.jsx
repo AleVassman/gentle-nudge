@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Tv, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -281,7 +281,7 @@ function App() {
         </span>
 
         <div style={{ display: 'flex', gap: '15px' }}>
-          {/* HISTORY BUTTON (NEW) */}
+            {/* HISTORY BUTTON */}
             <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openHistory}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isHistoryOpen ? 1 : 0.5 }}
@@ -289,23 +289,7 @@ function App() {
             {isHistoryOpen ? <X size={28} /> : <Calendar size={28} />}
             </motion.button>
 
-          {/* BREATHING BUTTON */}
-          <motion.button 
-            whileTap={{ scale: 0.9 }} onClick={openBreathing}
-            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isBreathingOpen ? 1 : 0.5 }}
-            >
-            {isBreathingOpen ? <X size={28} /> : <Wind size={28} />}
-            </motion.button>
-
-            {/* VOID BUTTON */}
-            <motion.button 
-            whileTap={{ scale: 0.9 }} onClick={openVoid}
-            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isVoidOpen ? 1 : 0.5 }}
-            >
-            {isVoidOpen ? <X size={28} /> : <Flame size={28} />}
-            </motion.button>
-
-            {/* TASKS SETTINGS BUTTON */}
+            {/* SETTINGS BUTTON */}
             <motion.button 
             whileTap={{ scale: 0.9 }} onClick={openSettings}
             style={{ background: 'transparent', border: 'none', color: '#e2e8f0', cursor: 'pointer', opacity: isSettingsOpen ? 1 : 0.5 }}
@@ -613,111 +597,75 @@ function App() {
         </>
       )}
 
-      {/* --- COMFORT DOCK (Glass Edition) --- */}
+      {/* --- COMFORT DOCK (The Toolbox) --- */}
       <div style={{
         position: 'fixed', 
-        bottom: '30px', // Lifted slightly higher
+        bottom: '30px', 
         left: '50%', 
         transform: 'translateX(-50%)',
         
         display: 'flex', 
-        gap: '40px', // More breathing room between icons
-        alignItems: 'center',
+        gap: '25px', // Reduced slightly to fit 4 items comfortably
+        alignItems: 'flex-end', // Aligns icons to bottom so they look straight
         
-        // The Glass Look
-        backgroundColor: 'rgba(15, 23, 42, 0.7)', // Deep transparent blue
-        backdropFilter: 'blur(12px)',            // Blurs the content behind it
-        WebkitBackdropFilter: 'blur(12px)',      // For iPhone support
+        backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         
-        padding: '12px 35px',
-        borderRadius: '24px',                    // Smooth squircle shape
-        
-        border: '1px solid rgba(255, 255, 255, 0.1)', // Subtle top highlight
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)', // Deep shadow for depth
+        padding: '12px 30px',
+        borderRadius: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.1)', 
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
         zIndex: 100
       }}>
         
-        {/* SOUND CONTROLLER WRAPPER */}
+        {/* 1. SOUND CONTROLLER */}
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            
-            {/* THE POPUP MENU (Vertical Stack) */}
             <AnimatePresence>
                 {isSoundMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }}
                         style={{
-                            position: 'absolute', 
-                            bottom: '100%', 
-                            marginBottom: '20px', 
-                            
-                            backgroundColor: 'rgba(30, 30, 40, 0.9)', 
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '50px', 
-                            padding: '12px 8px',
-                            display: 'flex', 
-                            flexDirection: 'column', 
-                            gap: '12px',
-                            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                            alignItems: 'center'
+                            position: 'absolute', bottom: '100%', marginBottom: '20px', 
+                            backgroundColor: 'rgba(30, 30, 40, 0.9)', backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', padding: '12px 8px',
+                            display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', alignItems: 'center'
                         }}
                     >
-                        {/* Fire Option */}
-                        <motion.div 
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => playSound('fire.mp3', 'fire')} 
-                            style={{ 
-                                cursor: 'pointer', padding: '10px', borderRadius: '50%', 
-                                backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent',
-                                color: currentSound === 'fire' ? '#ff8787' : '#94a3b8',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center'
-                            }}
-                        >
-                            <Flame size={20} />
-                        </motion.div>
-
-                        {/* Rain Option */}
-                        <motion.div 
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => playSound('rain.mp3', 'rain')} 
-                            style={{ 
-                                cursor: 'pointer', padding: '10px', borderRadius: '50%',
-                                backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent',
-                                color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center'
-                            }}
-                        >
-                            <CloudRain size={20} />
-                        </motion.div>
-
-                        {/* Close Option */}
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('fire.mp3', 'fire')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'fire' ? 'rgba(255, 100, 100, 0.2)' : 'transparent', color: currentSound === 'fire' ? '#ff8787' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Flame size={20} /></motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => playSound('rain.mp3', 'rain')} style={{ cursor: 'pointer', padding: '10px', borderRadius: '50%', backgroundColor: currentSound === 'rain' ? 'rgba(77, 171, 247, 0.2)' : 'transparent', color: currentSound === 'rain' ? '#4dabf7' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloudRain size={20} /></motion.div>
                         <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}>
-                            <X size={16} />
-                        </motion.div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px' }}><X size={16} /></motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* MAIN SOUND BUTTON */}
-            <motion.div 
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setIsSoundMenuOpen(!isSoundMenuOpen)} 
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}
-            >
-                <div style={{ marginBottom: '4px' }}>
-                    {currentSound ? <Pause size={28} /> : <Play size={28} />}
-                </div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>
-                    {currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}
-                </span>
+            <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsSoundMenuOpen(!isSoundMenuOpen)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
+                <div style={{ marginBottom: '4px' }}>{currentSound ? <Pause size={28} /> : <Play size={28} />}</div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}</span>
             </motion.div>
-
         </div>
 
-        {/* LIFELINE BUTTON */}
+        {/* 2. BREATHE BUTTON (Moved) */}
+        <motion.div 
+           whileTap={{ scale: 0.9 }}
+           onClick={openBreathing}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0' }}
+        >
+           <div style={{ marginBottom: '4px' }}><Wind size={28} /></div>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Breathe</span>
+        </motion.div>
+
+        {/* 3. VOID BUTTON (Moved) */}
+        <motion.div 
+           whileTap={{ scale: 0.9 }}
+           onClick={openVoid}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0' }}
+        >
+           <div style={{ marginBottom: '4px' }}><Flame size={28} /></div>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
+        </motion.div>
+
+        {/* 4. HELP BUTTON */}
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={triggerLifeline}
@@ -726,18 +674,6 @@ function App() {
            <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
         </motion.div>
-
-        {/* TIKTOK LINK */}
-        <motion.a 
-           whileTap={{ scale: 0.9 }}
-           href="https://www.tiktok.com/" 
-           target="_blank" 
-           rel="noreferrer"
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#e2e8f0' }}
-        >
-           <div style={{ marginBottom: '4px' }}><Tv size={28} /></div>
-           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>TikTok</span>
-        </motion.a>
 
       </div>
 
