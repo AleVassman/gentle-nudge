@@ -499,42 +499,98 @@ function App() {
         
       ) : isHistoryOpen ? (
 
-        /* --- VIEW 4: HISTORY LOG --- */
+        /* --- VIEW 4: JOURNEY GRID (Dynamic Months) --- */
         <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            style={{ backgroundColor: 'rgba(30,30,30,0.9)', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}
+            style={{ 
+                backgroundColor: 'rgba(30,30,30,0.9)', 
+                padding: '20px', 
+                borderRadius: '15px', 
+                border: '1px solid #333',
+                boxSizing: 'border-box',
+                width: '100%'
+            }}
         >
+          {/* DYNAMIC HEADER LOGIC */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <Calendar size={20} />
-            <h2 style={{ margin: 0 }}>Your Journey</h2>
+            <h2 style={{ margin: 0 }}>
+              {(() => {
+                const today = new Date();
+                const past = new Date();
+                past.setDate(today.getDate() - 29);
+                
+                const startMonth = past.toLocaleString('default', { month: 'long' });
+                const endMonth = today.toLocaleString('default', { month: 'long' });
+                
+                return startMonth === endMonth ? startMonth : `${startMonth} - ${endMonth}`;
+              })()}
+            </h2>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '500px', overflowY: 'auto' }}>
-            {Object.keys(history).length === 0 ? (
-                <p style={{ opacity: 0.5, textAlign: 'center', marginTop: '20px' }}>No days recorded yet.</p>
-            ) : (
-                // Sort dates so newest is first
-                Object.entries(history).reverse().map(([date, tier]) => (
-                    <div key={date} style={{ 
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        background: '#333', padding: '15px', borderRadius: '12px',
-                        borderLeft: `4px solid ${
-                            tier === 1 ? '#555' : 
-                            tier === 2 ? '#d97706' : 
-                            tier === 3 ? '#2563eb' : '#16a34a' 
-                        }`
-                    }}>
-                        <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>{date}</span>
-                        <span style={{ 
-                            fontSize: '0.8rem', padding: '4px 10px', borderRadius: '10px',
-                            backgroundColor: 'rgba(255,255,255,0.1)', color: '#aaa'
-                        }}>
-                            {tier === 1 ? 'Survival' : tier === 2 ? 'Low Power' : tier === 3 ? 'Reboot' : 'Online'}
-                        </span>
-                    </div>
-                ))
-            )}
+          {/* THE GRID */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(7, 1fr)', 
+            gap: '5px', 
+            marginBottom: '20px'
+          }}>
+            {/* Logic to generate last 30 days */}
+            {Array.from({ length: 30 }).map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (29 - i)); 
+                const dateKey = d.toLocaleDateString();
+                const dayNumber = d.getDate();
+                const tier = history[dateKey];
+                const isToday = i === 29; 
+
+                // Color Logic
+                let bg = 'rgba(255,255,255,0.01)'; 
+                let textColor = '#666'; 
+                let borderColor = 'rgba(255,255,255,0.1)';
+                
+                if (tier) {
+                    textColor = 'white';
+                    borderColor = 'transparent';
+                    if (tier === 1) bg = '#555';       
+                    if (tier === 2) bg = '#d97706';    
+                    if (tier === 3) bg = '#2563eb';    
+                    if (tier === 4) bg = '#16a34a';    
+                }
+                
+                if (isToday) borderColor = 'white';
+
+                return (
+                  <div 
+                    key={i} 
+                    style={{ 
+                        position: 'relative',
+                        width: '100%', aspectRatio: '1/1',
+                        backgroundColor: bg,
+                        borderRadius: '6px',
+                        border: `1px solid ${borderColor}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.7rem', fontWeight: 'bold', color: textColor
+                    }}
+                  >
+                    {dayNumber}
+                  </div>
+                );
+            })}
           </div>
+
+          {/* LEGEND */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', borderTop: '1px solid #444', paddingTop: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#555' }}></div> Survival</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#d97706' }}></div> Low</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#2563eb' }}></div> Reboot</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#16a34a' }}></div> Online</div>
+          </div>
+          
+          <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#666', marginTop: '15px', fontStyle: 'italic' }}>
+            "Progress is not a straight line."
+          </p>
+
         </motion.div> 
         
       )  : (
