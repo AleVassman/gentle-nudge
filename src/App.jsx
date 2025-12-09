@@ -69,11 +69,27 @@ function App() {
 
   const [wins, setWins] = useState(() => {
     const saved = localStorage.getItem("gentle_wins");
-    return saved ? parseInt(saved, 10) : 0;
+    const today = new Date().toLocaleDateString(); // Gets "12/9/2025"
+    
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Check if the saved data is from TODAY
+        if (parsed.date === today) {
+          return parsed.count;
+        }
+      } catch (e) {
+        // If old format (just a number), reset to 0 to be safe
+        return 0;
+      }
+    }
+    return 0; // New day? Start at 0.
   });
   
+  // Save both the count AND the date
   useEffect(() => {
-    localStorage.setItem("gentle_wins", wins);
+    const today = new Date().toLocaleDateString();
+    localStorage.setItem("gentle_wins", JSON.stringify({ date: today, count: wins }));
   }, [wins]);
 
   const [energy, setEnergy] = useState(null);
