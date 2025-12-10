@@ -329,14 +329,50 @@ function App() {
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto' }}>
-            {allTasks.map((task, index) => (
-              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#333', padding: '10px', borderRadius: '8px', fontSize: '0.9rem' }}>
-                <div style={{ flex: 1, marginRight: '10px' }}>{task.text}</div>
-                <button onClick={() => {triggerHaptic(); setAllTasks(allTasks.filter((_, i) => i !== index))}} style={{ background: '#552222', color: '#ffaaaa', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', display: 'flex' }}>
-                   <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
+            {allTasks.map((task, index) => {
+              
+              // Helper to determine color and label for each badge
+              let badgeColor = '#555';
+              let badgeLabel = 'Survival';
+              
+              if (task.tier === 2) { badgeColor = '#d97706'; badgeLabel = 'Low Power'; }
+              if (task.tier === 3) { badgeColor = '#2563eb'; badgeLabel = 'Reboot'; }
+              if (task.tier === 4) { badgeColor = '#16a34a'; badgeLabel = 'Online'; }
+
+              return (
+                <div key={index} style={{ 
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+                  background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '12px', fontSize: '0.9rem',
+                  border: '1px solid rgba(255,255,255,0.05)'
+                }}>
+                  <div style={{ flex: 1, marginRight: '10px' }}>
+                    {/* THE NEW BADGE */}
+                    <div style={{ marginBottom: '6px' }}>
+                        <span style={{ 
+                            backgroundColor: badgeColor, 
+                            color: 'white', 
+                            fontSize: '0.65rem', 
+                            fontWeight: 'bold', 
+                            padding: '3px 8px', 
+                            borderRadius: '10px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            {badgeLabel}
+                        </span>
+                    </div>
+                    {/* THE TASK TEXT */}
+                    <div style={{ lineHeight: '1.4' }}>
+                        {task.text}
+                    </div>
+                  </div>
+                  
+                  <button onClick={() => { triggerHaptic(); setAllTasks(allTasks.filter((_, i) => i !== index)); }} style={{ background: 'rgba(85, 34, 34, 0.5)', color: '#ffaaaa', border: '1px solid rgba(255,0,0,0.2)', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex' }}>
+                     <Trash2 size={18} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <form onSubmit={(e) => {
