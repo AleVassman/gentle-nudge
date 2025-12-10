@@ -698,7 +698,7 @@ function App() {
       }}>
         
         {/* 1. SOUND CONTROLLER */}
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px', userSelect: 'none' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
             <AnimatePresence>
                 {isSoundMenuOpen && (
                     <motion.div
@@ -727,7 +727,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openBreathing}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px', userSelect: 'none' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Wind size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Breathe</span>
@@ -737,7 +737,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openVoid}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px', userSelect:'none' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Flame size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
@@ -747,7 +747,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={triggerLifeline}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px', userSelect:'none' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>

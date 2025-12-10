@@ -1,14 +1,18 @@
+/* 1. GLOBAL RESET */
+* {
+  -webkit-tap-highlight-color: transparent; /* Removes the blue box on Android */
+  box-sizing: border-box; /* Ensures padding doesn't break layouts */
+}
+
 :root {
   font-family: 'Inter', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   
-  /* The "Midnight Aurora" Gradient */
+  /* Midnight Aurora Gradient */
   background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
   
   color: #e2e8f0;
-  
-  /* Smoother fonts */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -16,14 +20,21 @@
 body {
   margin: 0;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  /* align-items: center;     Center vertically */
+  justify-content: center;
   min-width: 320px;
   min-height: 100vh;
-  background-attachment: fixed; /* Keeps gradient steady while scrolling */
+  background-attachment: fixed;
 }
 
-/* Make scrollbars darker/invisible */
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -37,14 +48,6 @@ body {
 
 button {
   outline: none;
-  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
-}
-
-#root {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
+  border: none;
 }
