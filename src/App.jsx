@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle, MapPin } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -70,7 +70,16 @@ function App() {
   // --- LIFELINE DATA ---
   const [lifeline, setLifeline] = useState(() => {
     const saved = localStorage.getItem("gentle_lifeline");
-    return saved ? JSON.parse(saved) : { number: "", message: "I'm having a low energy day. Send me a meme?" };
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Ensure the new setting exists if loading old data
+      return { 
+        number: parsed.number || "", 
+        message: parsed.message || "", 
+        includeLocation: parsed.includeLocation || false // Default is OFF
+      };
+    }
+    return { number: "", message: "I'm having a low energy day.", includeLocation: false };
   });
 
   useEffect(() => {
@@ -79,14 +88,45 @@ function App() {
 
   const triggerLifeline = () => {
     triggerHaptic();
+    
     if (!lifeline.number) {
       alert("Please set a phone number in Settings first!");
       openSettings();
       return;
     }
-    // Format for WhatsApp: https://wa.me/1234567890?text=Hello
-    const url = `https://wa.me/${lifeline.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(lifeline.message)}`;
-    window.open(url, '_blank');
+
+    // Helper function to actually open WhatsApp
+    const openWhatsapp = (locationString = "") => {
+      const fullText = lifeline.message + locationString;
+      const url = `https://wa.me/${lifeline.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(fullText)}`;
+      window.open(url, '_blank');
+    };
+
+    // LOGIC: Check if we need location
+    if (lifeline.includeLocation) {
+      if ("geolocation" in navigator) {
+        // Ask for position
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // Success! We got coordinates
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const mapLink = `\n\n📍 My Location: https://maps.google.com/?q=${lat},${lng}`;
+            openWhatsapp(mapLink);
+          },
+          (error) => {
+            // Error (or user denied permission). Send message WITHOUT location.
+            alert("Could not get location. Sending message anyway.");
+            openWhatsapp("");
+          }
+        );
+      } else {
+        openWhatsapp("");
+      }
+    } else {
+      // User doesn't want location, send immediately
+      openWhatsapp("");
+    }
   };
 
   useEffect(() => {
@@ -414,6 +454,29 @@ function App() {
               style={{ width: '100%', boxSizing: 'border-box', height: '60px', padding: '12px', borderRadius: '5px', border: 'none', backgroundColor: '#333', color: 'white', fontFamily: 'inherit', resize: 'none' }} 
             />
           </div>
+
+          {/* LOCATION TOGGLE */}
+            <div 
+              onClick={() => { triggerHaptic(); setLifeline({ ...lifeline, includeLocation: !lifeline.includeLocation }); }}
+              style={{ 
+                marginTop: '10px', 
+                display: 'flex', alignItems: 'center', gap: '10px', 
+                cursor: 'pointer', opacity: 0.9 
+              }}
+            >
+              <div style={{ 
+                width: '20px', height: '20px', borderRadius: '5px', 
+                border: '2px solid #666', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                backgroundColor: lifeline.includeLocation ? '#4CAF50' : 'transparent',
+                borderColor: lifeline.includeLocation ? '#4CAF50' : '#666'
+              }}>
+                {lifeline.includeLocation && <Check size={14} color="white" />}
+              </div>
+              <span style={{ fontSize: '0.8rem', color: '#ccc', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <MapPin size={14} /> Include my GPS location
+              </span>
+            </div>
 
           {/* DATA MANAGEMENT SECTION */}
           <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
