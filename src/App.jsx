@@ -98,24 +98,28 @@ function App() {
     // Helper function to actually open WhatsApp
     const openWhatsapp = (locationString = "") => {
       const fullText = lifeline.message + locationString;
-      const url = `https://wa.me/${lifeline.number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(fullText)}`;
-      window.open(url, '_blank');
+      const cleanNumber = lifeline.number.replace(/[^0-9]/g, '');
+      
+      // CHANGE 1: Use 'whatsapp://' protocol. This forces the App to open.
+      const url = `whatsapp://send?phone=${cleanNumber}&text=${encodeURIComponent(fullText)}`;
+      
+      // CHANGE 2: Use 'window.location.href'.
+      // This navigates the current page instead of opening a new tab.
+      // It bypasses Brave's popup blocker and feels much faster.
+      window.location.href = url;
     };
 
     // LOGIC: Check if we need location
     if (lifeline.includeLocation) {
       if ("geolocation" in navigator) {
-        // Ask for position
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            // Success! We got coordinates
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const mapLink = `\n\n📍 My Location: https://maps.google.com/?q=${lat},${lng}`;
             openWhatsapp(mapLink);
           },
           (error) => {
-            // Error (or user denied permission). Send message WITHOUT location.
             alert("Could not get location. Sending message anyway.");
             openWhatsapp("");
           }
@@ -124,7 +128,6 @@ function App() {
         openWhatsapp("");
       }
     } else {
-      // User doesn't want location, send immediately
       openWhatsapp("");
     }
   };
