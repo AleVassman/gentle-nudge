@@ -698,14 +698,14 @@ function App() {
       }}>
         
         {/* 1. SOUND CONTROLLER */}
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px', userSelect: 'none' }}>
             <AnimatePresence>
                 {isSoundMenuOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }}
                         style={{
                             position: 'absolute', bottom: '100%', marginBottom: '20px', 
-                            backgroundColor: 'rgba(30, 30, 40, 0.9)', backdropFilter: 'blur(10px)',
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)',
                             border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', padding: '12px 8px',
                             display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', alignItems: 'center'
                         }}
@@ -727,7 +727,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openBreathing}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px', userSelect: 'none' }}
         >
            <div style={{ marginBottom: '4px' }}><Wind size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Breathe</span>
@@ -737,7 +737,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={openVoid}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px', userSelect:'none' }}
         >
            <div style={{ marginBottom: '4px' }}><Flame size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
@@ -747,7 +747,7 @@ function App() {
         <motion.div 
            whileTap={{ scale: 0.9 }}
            onClick={triggerLifeline}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px' }}
+           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px', userSelect:'none' }}
         >
            <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
