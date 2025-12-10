@@ -100,16 +100,16 @@ function App() {
       const fullText = lifeline.message + locationString;
       const cleanNumber = lifeline.number.replace(/[^0-9]/g, '');
       
-      // CHANGE 1: Use 'whatsapp://' protocol. This forces the App to open.
-      const url = `whatsapp://send?phone=${cleanNumber}&text=${encodeURIComponent(fullText)}`;
+      // ANDROID INTENT: "The Nuclear Option"
+      // This explicitly targets the WhatsApp App Package (com.whatsapp)
+      // It bypasses the browser's "Web Link" handling.
+      const url = `intent://send?phone=${cleanNumber}&text=${encodeURIComponent(fullText)}#Intent;package=com.whatsapp;scheme=whatsapp;end`;
       
-      // CHANGE 2: Use 'window.location.href'.
-      // This navigates the current page instead of opening a new tab.
-      // It bypasses Brave's popup blocker and feels much faster.
       window.location.href = url;
     };
 
     // LOGIC: Check if we need location
+    // NOTE: GPS always takes 1-3 seconds. This delay is what causes browsers to get suspicious.
     if (lifeline.includeLocation) {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
@@ -120,14 +120,17 @@ function App() {
             openWhatsapp(mapLink);
           },
           (error) => {
-            alert("Could not get location. Sending message anyway.");
+            // If GPS fails, just send without it immediately
             openWhatsapp("");
-          }
+          },
+          // GPS Options: specific settings to try and make it faster
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
         );
       } else {
         openWhatsapp("");
       }
     } else {
+      // If no location needed, this will be INSTANT (0ms delay)
       openWhatsapp("");
     }
   };
