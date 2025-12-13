@@ -908,7 +908,7 @@ function App() {
                         initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }}
                         style={{
                             position: 'absolute', bottom: '100%', marginBottom: '20px', 
-                            backgroundColor: 'rgba(30, 30, 40, 0.9)', backdropFilter: 'blur(10px)',
+                            backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)',
                             border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', padding: '10px',
                             display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', 
                             alignItems: 'stretch', minWidth: '120px'
