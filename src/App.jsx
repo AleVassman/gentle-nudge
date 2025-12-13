@@ -1,7 +1,12 @@
+// TODO: Add two more possible lifeline contacts
+// TODO: Add the italian language
+
+
+
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 // IMPORT THE NEW ICONS
-import { Settings, X, Flame, Play, Pause, CloudRain, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle, MapPin } from 'lucide-react'
+import { Settings, X, Flame, Play, Pause, CloudRain, Trash2, Plus, Battery, Check, Trophy, Wind, Calendar, Download, Upload, MessageCircle, MapPin, User, UserPlus } from 'lucide-react'
 
 // THE DEFAULT TASKS
 const DEFAULT_TASKS = [
@@ -68,70 +73,80 @@ function App() {
   });
 
   // --- LIFELINE DATA ---
+  const [isLifelineMenuOpen, setIsLifelineMenuOpen] = useState(false);
+
   const [lifeline, setLifeline] = useState(() => {
     const saved = localStorage.getItem("gentle_lifeline");
     if (saved) {
-      const parsed = JSON.parse(saved);
-      // Ensure the new setting exists if loading old data
-      return { 
-        number: parsed.number || "", 
-        message: parsed.message || "", 
-        includeLocation: parsed.includeLocation || false // Default is OFF
-      };
+      try {
+        const parsed = JSON.parse(saved);
+        
+        // MIGRATION 1: Convert old single-contact format to new format
+        if (parsed.number) {
+          return {
+            includeLocation: parsed.includeLocation || false,
+            contacts: [{ id: 1, name: "Contact 1", number: parsed.number, message: parsed.message }]
+          };
+        }
+
+        // MIGRATION 2: Safety Check (The Fix)
+        // If 'contacts' is missing for any reason, force it to be an empty array
+        if (!Array.isArray(parsed.contacts)) {
+             return { ...parsed, contacts: [] };
+        }
+
+        return parsed;
+      } catch (e) {
+        // If data is totally corrupted, reset
+        return { includeLocation: false, contacts: [] };
+      }
     }
-    return { number: "", message: "I'm having a low energy day.", includeLocation: false };
+    // Default start
+    return { includeLocation: false, contacts: [] };
   });
 
   useEffect(() => {
     localStorage.setItem("gentle_lifeline", JSON.stringify(lifeline));
   }, [lifeline]);
 
-  const triggerLifeline = () => {
+  // 1. The Decision Maker
+  const handleLifelineClick = () => {
     triggerHaptic();
     
-    if (!lifeline.number) {
-      alert("Please set a phone number in Settings first!");
+    if (lifeline.contacts.length === 0) {
+      alert("Please add a contact in Settings first!");
       openSettings();
-      return;
+    } else if (lifeline.contacts.length === 1) {
+      // Only 1 contact? Send immediately (No menu needed)
+      sendWhatsapp(lifeline.contacts[0]);
+    } else {
+      // Multiple contacts? Toggle the menu
+      setIsLifelineMenuOpen(!isLifelineMenuOpen);
     }
+  };
 
-    // Helper function to actually open WhatsApp
-    const openWhatsapp = (locationString = "") => {
-      const fullText = lifeline.message + locationString;
-      const cleanNumber = lifeline.number.replace(/[^0-9]/g, '');
-      
-      // ANDROID INTENT: "The Nuclear Option"
-      // This explicitly targets the WhatsApp App Package (com.whatsapp)
-      // It bypasses the browser's "Web Link" handling.
+  // 2. The Sender
+  const sendWhatsapp = (contact) => {
+    triggerHaptic();
+    
+    const doSend = (locationString = "") => {
+      const fullText = contact.message + locationString;
+      const cleanNumber = contact.number.replace(/[^0-9]/g, '');
       const url = `intent://send?phone=${cleanNumber}&text=${encodeURIComponent(fullText)}#Intent;package=com.whatsapp;scheme=whatsapp;end`;
-      
       window.location.href = url;
+      setIsLifelineMenuOpen(false); // Close menu if open
     };
 
-    // LOGIC: Check if we need location
-    // NOTE: GPS always takes 1-3 seconds. This delay is what causes browsers to get suspicious.
-    if (lifeline.includeLocation) {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const mapLink = `\n\n📍 My Location: https://maps.google.com/?q=${lat},${lng}`;
-            openWhatsapp(mapLink);
-          },
-          (error) => {
-            // If GPS fails, just send without it immediately
-            openWhatsapp("");
-          },
-          // GPS Options: specific settings to try and make it faster
-          { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
-        );
-      } else {
-        openWhatsapp("");
-      }
+    if (lifeline.includeLocation && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          const link = `\n\n📍 My Location: https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`;
+          doSend(link);
+        },
+        () => doSend("") // Fail silently
+      );
     } else {
-      // If no location needed, this will be INSTANT (0ms delay)
-      openWhatsapp("");
+      doSend("");
     }
   };
 
@@ -439,50 +454,87 @@ function App() {
                </div>
           </form>
 
-          {/* LIFELINE SETUP */}
+          {/* LIFELINE SETUP (Multi-Contact) */}
           <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
             <h3 style={{ fontSize: '1rem', marginBottom: '15px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '8px' }}>
-               <MessageCircle size={16} /> Lifeline Contact
+               <MessageCircle size={16} /> Lifeline Contacts
             </h3>
             
-            <input 
-              placeholder="Number (e.g. 393331234567)" 
-              value={lifeline.number}
-              onChange={(e) => setLifeline({ ...lifeline, number: e.target.value })}
-              style={{ width: '100%', boxSizing: 'border-box', padding: '12px', marginBottom: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#333', color: 'white' }} 
-            />
-            <p style={{ fontSize: '0.7rem', color: '#666', marginBottom: '10px' }}>Include Country Code (e.g., 39 for Italy). No + symbol.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {lifeline.contacts?.map((contact, index) => (
+                <div key={contact.id} style={{ background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  
+                  {/* Name Header + Delete */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <input 
+                      placeholder="Name (e.g. Mom)"
+                      value={contact.name}
+                      onChange={(e) => {
+                        const newContacts = [...lifeline.contacts];
+                        newContacts[index].name = e.target.value;
+                        setLifeline({ ...lifeline, contacts: newContacts });
+                      }}
+                      style={{ background: 'transparent', border: 'none', color: '#4CAF50', fontWeight: 'bold', fontSize: '0.9rem', width: '100%' }}
+                    />
+                    <button onClick={() => {
+                        const newContacts = lifeline.contacts.filter(c => c.id !== contact.id);
+                        setLifeline({ ...lifeline, contacts: newContacts });
+                    }} style={{ background: 'transparent', border: 'none', color: '#ffaaaa', cursor: 'pointer' }}><Trash2 size={16}/></button>
+                  </div>
 
-            <textarea 
-              placeholder="Message..." 
-              value={lifeline.message}
-              onChange={(e) => setLifeline({ ...lifeline, message: e.target.value })}
-              style={{ width: '100%', boxSizing: 'border-box', height: '60px', padding: '12px', borderRadius: '5px', border: 'none', backgroundColor: '#333', color: 'white', fontFamily: 'inherit', resize: 'none' }} 
-            />
-          </div>
+                  {/* Number */}
+                  <input 
+                    placeholder="39333..." 
+                    value={contact.number}
+                    onChange={(e) => {
+                      const newContacts = [...lifeline.contacts];
+                      newContacts[index].number = e.target.value;
+                      setLifeline({ ...lifeline, contacts: newContacts });
+                    }}
+                    style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#222', color: 'white' }} 
+                  />
 
-          {/* LOCATION TOGGLE */}
+                  {/* Message */}
+                  <textarea 
+                    placeholder="Message..." 
+                    value={contact.message}
+                    onChange={(e) => {
+                      const newContacts = [...lifeline.contacts];
+                      newContacts[index].message = e.target.value;
+                      setLifeline({ ...lifeline, contacts: newContacts });
+                    }}
+                    style={{ width: '100%', height: '50px', padding: '10px', borderRadius: '5px', border: 'none', backgroundColor: '#222', color: 'white', resize: 'none', fontFamily: 'inherit' }} 
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Add Button (Max 3) */}
+            {lifeline.contacts.length < 3 && (
+              <button 
+                onClick={() => {
+                  setLifeline({
+                    ...lifeline,
+                    contacts: [...lifeline.contacts, { id: Date.now(), name: "", number: "", message: "I need help." }]
+                  });
+                }}
+                style={{ marginTop: '15px', width: '100%', padding: '10px', background: '#334155', color: 'white', border: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+              >
+                <UserPlus size={16} /> Add Contact
+              </button>
+            )}
+
+            {/* GPS Toggle */}
             <div 
               onClick={() => { triggerHaptic(); setLifeline({ ...lifeline, includeLocation: !lifeline.includeLocation }); }}
-              style={{ 
-                marginTop: '10px', 
-                display: 'flex', alignItems: 'center', gap: '10px', 
-                cursor: 'pointer', opacity: 0.9 
-              }}
+              style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', opacity: 0.9 }}
             >
-              <div style={{ 
-                width: '20px', height: '20px', borderRadius: '5px', 
-                border: '2px solid #666', 
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: lifeline.includeLocation ? '#4CAF50' : 'transparent',
-                borderColor: lifeline.includeLocation ? '#4CAF50' : '#666'
-              }}>
+              <div style={{ width: '20px', height: '20px', borderRadius: '5px', border: '2px solid #666', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: lifeline.includeLocation ? '#4CAF50' : 'transparent', borderColor: lifeline.includeLocation ? '#4CAF50' : '#666' }}>
                 {lifeline.includeLocation && <Check size={14} color="white" />}
               </div>
-              <span style={{ fontSize: '0.8rem', color: '#ccc', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <MapPin size={14} /> Include my GPS location
-              </span>
+              <span style={{ fontSize: '0.8rem', color: '#ccc' }}><MapPin size={14} style={{ marginRight: '5px', verticalAlign: 'middle' }}/> Include my GPS location</span>
             </div>
+          </div>
 
           {/* DATA MANAGEMENT SECTION */}
           <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
@@ -625,7 +677,7 @@ function App() {
         <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             style={{ 
-                backgroundColor: 'rgba(30,30,30,0.9)', 
+                backgroundColor: 'rgba(15, 23, 42, 0.85)', 
                 padding: '20px', 
                 borderRadius: '15px', 
                 border: '1px solid #333',
@@ -667,7 +719,7 @@ function App() {
                 const isToday = i === 29; 
 
                 // Color Logic
-                let bg = 'rgba(255,255,255,0.01)'; 
+                let bg = 'rgba(15, 23, 42, 0.85)'; 
                 let textColor = '#666'; 
                 let borderColor = 'rgba(255,255,255,0.1)';
                 
@@ -848,15 +900,49 @@ function App() {
            <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
         </motion.div>
 
-        {/* 4. HELP BUTTON */}
-        <motion.div 
-           whileTap={{ scale: 0.9 }}
-           onClick={triggerLifeline}
-           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', width: '60px' }}
-        >
-           <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
-           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
-        </motion.div>
+        {/* 4. HELP BUTTON (With Popup) */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
+            <AnimatePresence>
+                {isLifelineMenuOpen && lifeline.contacts.length > 1 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                        style={{
+                            position: 'absolute', bottom: '100%', marginBottom: '20px', 
+                            backgroundColor: 'rgba(30, 30, 40, 0.9)', backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '20px', padding: '10px',
+                            display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', 
+                            alignItems: 'stretch', minWidth: '120px'
+                        }}
+                    >
+                        {lifeline.contacts.map(contact => (
+                           <motion.div 
+                             key={contact.id}
+                             whileTap={{ scale: 0.95 }}
+                             onClick={() => sendWhatsapp(contact)}
+                             style={{ 
+                               cursor: 'pointer', padding: '10px 15px', borderRadius: '10px', 
+                               backgroundColor: 'rgba(255,255,255,0.05)', color: 'white',
+                               display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem'
+                             }}
+                           >
+                              <User size={16} color="#4CAF50"/> {contact.name || "Contact"}
+                           </motion.div>
+                        ))}
+                        <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '2px 0' }}></div>
+                        <motion.div whileTap={{ scale: 0.9 }} onClick={() => setIsLifelineMenuOpen(false)} style={{ cursor: 'pointer', color: '#64748b', padding: '5px', display: 'flex', justifyContent: 'center' }}><X size={16} /></motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            <motion.div 
+               whileTap={{ scale: 0.9 }}
+               onClick={handleLifelineClick}
+               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isLifelineMenuOpen ? '#4CAF50' : '#e2e8f0', width: '60px' }}
+            >
+               <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
+               <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
+            </motion.div>
+        </div>
 
       </div>
 
