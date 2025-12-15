@@ -1,19 +1,41 @@
-export const DEFAULT_TASKS = [
-  { text: "Open Samsung Music. Play that one song that always helps.", tier: 1, type: "comfort" },
-  { text: "Open TikTok. Find 3 funny videos.", tier: 1, type: "distraction" },
-  { text: "Close your eyes. Just sleep.", tier: 1, type: "rest" },
-  { text: "Unclench your jaw.", tier: 1, type: "physical" },
-  { text: "Go to the window/outside and have a smoke.", tier: 2, type: "break" },
-  { text: "Drink a glass of water.", tier: 2, type: "health" },
-  { text: "Sit up in bed.", tier: 2, type: "physical" },
-  { text: "Splash water on your face.", tier: 2, type: "hygiene" },
-  { text: "Brush your teeth.", tier: 3, type: "hygiene" },
-  { text: "Put the dirty dishes in the sink.", tier: 3, type: "tidying" },
-  { text: "Change your shirt.", tier: 3, type: "hygiene" },
-  { text: "Take a shower.", tier: 4, type: "hygiene" },
-  { text: "Make a simple meal.", tier: 4, type: "health" },
-  { text: "Clean one corner of the room.", tier: 4, type: "tidying" }
+// ENGLISH DEFAULTS
+export const DEFAULT_TASKS_EN = [
+  { text: "Open Samsung Music. Play that one song that always helps.", tier: 1, type: "default" },
+  { text: "Open TikTok. Find 3 funny videos.", tier: 1, type: "default" },
+  { text: "Close your eyes. Just sleep.", tier: 1, type: "default" },
+  { text: "Unclench your jaw.", tier: 1, type: "default" },
+  { text: "Go to the window/outside and have a smoke.", tier: 2, type: "default" },
+  { text: "Drink a glass of water.", tier: 2, type: "default" },
+  { text: "Sit up in bed.", tier: 2, type: "default" },
+  { text: "Splash water on your face.", tier: 2, type: "default" },
+  { text: "Brush your teeth.", tier: 3, type: "default" },
+  { text: "Put the dirty dishes in the sink.", tier: 3, type: "default" },
+  { text: "Change your shirt.", tier: 3, type: "default" },
+  { text: "Take a shower.", tier: 4, type: "default" },
+  { text: "Make a simple meal.", tier: 4, type: "default" },
+  { text: "Clean one corner of the room.", tier: 4, type: "default" }
 ];
+
+// ITALIAN DEFAULTS
+export const DEFAULT_TASKS_IT = [
+  { text: "Apri Samsung Music. Metti quella canzone che aiuta sempre.", tier: 1, type: "default" },
+  { text: "Apri TikTok. Trova 3 video divertenti.", tier: 1, type: "default" },
+  { text: "Chiudi gli occhi. Dormi e basta.", tier: 1, type: "default" },
+  { text: "Rilassa la mascella.", tier: 1, type: "default" },
+  { text: "Vai alla finestra/fuori e fuma una sigaretta.", tier: 2, type: "default" },
+  { text: "Bevi un bicchiere d'acqua.", tier: 2, type: "default" },
+  { text: "Siediti sul letto.", tier: 2, type: "default" },
+  { text: "Sciacquati la faccia.", tier: 2, type: "default" },
+  { text: "Lavati i denti.", tier: 3, type: "default" },
+  { text: "Metti i piatti sporchi nel lavandino.", tier: 3, type: "default" },
+  { text: "Cambiati la maglietta.", tier: 3, type: "default" },
+  { text: "Fatti una doccia.", tier: 4, type: "default" },
+  { text: "Prepara un pasto semplice.", tier: 4, type: "default" },
+  { text: "Pulisci un angolo della stanza.", tier: 4, type: "default" }
+];
+
+// Default export
+export const DEFAULT_TASKS = DEFAULT_TASKS_EN;
 
 export const HELP_SLIDES = [
   {

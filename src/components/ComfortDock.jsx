@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, CloudRain, X, Pause, Play, Wind, MessageCircle, User, Tv } from 'lucide-react';
+import { Flame, CloudRain, X, Pause, Play, Wind, MessageCircle, User } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ComfortDock({
   currentSound,
@@ -17,26 +18,16 @@ export default function ComfortDock({
   sendWhatsapp,
   triggerHaptic
 }) {
+  const { t } = useLanguage();
+
   return (
     <div style={{
-        position: 'fixed', 
-        bottom: '30px', 
-        left: '50%', 
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 40px)', 
-        maxWidth: '410px',          
-        boxSizing: 'border-box',    
-        display: 'flex', 
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        backgroundColor: 'rgba(15, 23, 42, 0.85)', 
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        padding: '12px 25px',       
-        borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.1)', 
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
-        zIndex: 100
+        position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 40px)', maxWidth: '410px', boxSizing: 'border-box',    
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+        padding: '12px 25px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', 
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)', zIndex: 100
       }}>
         
         {/* 1. SOUND CONTROLLER */}
@@ -61,7 +52,9 @@ export default function ComfortDock({
             </AnimatePresence>
             <motion.div whileTap={{ scale: 0.9 }} onClick={() => { triggerHaptic(); setIsSoundMenuOpen(!isSoundMenuOpen); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: currentSound ? '#4CAF50' : '#e2e8f0', transition: 'color 0.3s' }}>
                 <div style={{ marginBottom: '4px' }}>{currentSound ? <Pause size={28} /> : <Play size={28} />}</div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{currentSound === 'rain' ? 'Rain' : currentSound === 'fire' ? 'Fire' : 'Sound'}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>
+                    {currentSound === 'rain' ? t('dock.rain') : currentSound === 'fire' ? t('dock.fire') : t('dock.sound')}
+                </span>
             </motion.div>
         </div>
 
@@ -72,7 +65,7 @@ export default function ComfortDock({
            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isBreathingOpen ? '#4dabf7' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Wind size={28} /></div>
-           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Breathe</span>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{t('dock.breathe')}</span>
         </motion.div>
 
         {/* 3. VOID BUTTON */}
@@ -82,10 +75,10 @@ export default function ComfortDock({
            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isVoidOpen ? '#ff8787' : '#e2e8f0', width: '60px' }}
         >
            <div style={{ marginBottom: '4px' }}><Flame size={28} /></div>
-           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Void</span>
+           <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{t('dock.void')}</span>
         </motion.div>
 
-        {/* 4. HELP BUTTON (With Popup) */}
+        {/* 4. HELP BUTTON */}
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
             <AnimatePresence>
                 {isLifelineMenuOpen && lifeline.contacts.length > 1 && (
@@ -125,7 +118,7 @@ export default function ComfortDock({
                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: isLifelineMenuOpen ? '#4CAF50' : '#e2e8f0', width: '60px' }}
             >
                <div style={{ marginBottom: '4px' }}><MessageCircle size={28} /></div>
-               <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>Help</span>
+               <span style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.5px' }}>{t('dock.help')}</span>
             </motion.div>
         </div>
 

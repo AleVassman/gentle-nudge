@@ -1,20 +1,31 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, ChevronLeft, Battery, Layers, LifeBuoy, Flame, Calendar, HelpCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext'; // <--- 1. Import
 
 // Map string names to actual components
 const iconMap = {
   'Battery': <Battery size={48} color="#4dabf7" />,
   'Layers': <Layers size={48} color="#ffd43b" />,
-  'LifeBuoy': <LifeBuoy size={48} color="#69db7c" />, // Using LifeBuoy to represent Tools/Help
+  'LifeBuoy': <LifeBuoy size={48} color="#69db7c" />, 
   'Flame': <Flame size={48} color="#ff8787" />,
   'Calendar': <Calendar size={48} color="#da77f2" />,
   'Default': <HelpCircle size={48} color="white" />
 };
 
-export default function HelpGuide({ onClose, slides, triggerHaptic }) {
+export default function HelpGuide({ onClose, triggerHaptic }) {
+  const { t } = useLanguage(); // <--- 2. Activate
   const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // 1 = right, -1 = left
+  const [direction, setDirection] = useState(0); 
+
+  // 3. Define Slides dynamically using translations
+  const slides = [
+    { icon: 'Battery', title: t('help.intro_title'), text: t('help.intro_text') },
+    { icon: 'Layers', title: t('help.tasks_title'), text: t('help.tasks_text') },
+    { icon: 'LifeBuoy', title: t('help.tools_title'), text: t('help.tools_text') },
+    { icon: 'Flame', title: t('help.void_title'), text: t('help.void_text') },
+    { icon: 'Calendar', title: t('help.history_title'), text: t('help.history_text') }
+  ];
 
   const handleNext = () => {
     triggerHaptic();
@@ -22,7 +33,7 @@ export default function HelpGuide({ onClose, slides, triggerHaptic }) {
       setDirection(1);
       setIndex(index + 1);
     } else {
-      onClose(); // Close if at the end
+      onClose(); 
     }
   };
 
@@ -56,7 +67,7 @@ export default function HelpGuide({ onClose, slides, triggerHaptic }) {
     >
       <div style={{ width: '100%', maxWidth: '350px' }}>
         
-        {/* CLOSE BUTTON (Top Right) */}
+        {/* CLOSE BUTTON */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button onClick={() => { triggerHaptic(); onClose(); }} style={{ background: 'transparent', color: '#aaa' }}>
                 <X size={24} />
@@ -106,7 +117,7 @@ export default function HelpGuide({ onClose, slides, triggerHaptic }) {
 
         </div>
 
-        {/* NAVIGATION BUTTONS */}
+        {/* NAVIGATION BUTTONS (Translated) */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', padding: '0 10px' }}>
             <button 
                 onClick={handlePrev} 
@@ -117,7 +128,7 @@ export default function HelpGuide({ onClose, slides, triggerHaptic }) {
                     transition: 'opacity 0.2s'
                 }}
             >
-                <ChevronLeft size={20} /> Back
+                <ChevronLeft size={20} /> {t('common.back')}
             </button>
 
             <button 
@@ -128,7 +139,7 @@ export default function HelpGuide({ onClose, slides, triggerHaptic }) {
                     display: 'flex', alignItems: 'center', gap: '5px', fontSize: '1rem'
                 }}
             >
-                {index === slides.length - 1 ? 'Start' : 'Next'} <ChevronRight size={20} />
+                {index === slides.length - 1 ? t('common.start') : t('common.next')} <ChevronRight size={20} />
             </button>
         </div>
 

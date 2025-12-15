@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext'; // <--- 1. Import
 
 export default function ActiveCard({ 
   currentTask, 
@@ -9,6 +10,8 @@ export default function ActiveCard({
   handleComplete, 
   triggerHaptic 
 }) {
+  const { t } = useLanguage(); // <--- 2. Activate
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 50, scale: 0.9 }} 
@@ -45,7 +48,8 @@ export default function ActiveCard({
             transition={{ duration: 0.2 }} 
             style={{ fontSize: '1.8rem', lineHeight: '1.4', margin: 0 }}
           >
-            {currentTask ? currentTask.text : "Loading..."}
+            {/* The task text itself comes from the DB, but "Loading" needs translation */}
+            {currentTask ? currentTask.text : t('common.loading')}
           </motion.h2>
         </AnimatePresence>
       </div>
@@ -59,7 +63,7 @@ export default function ActiveCard({
             onClick={() => { triggerHaptic(); getTask(energy); }} 
             style={{ padding: '15px 25px', borderRadius: '50px', border: 'none', backgroundColor: '#333', color: '#aaa', fontWeight: 'bold', cursor: 'pointer' }}
         >
-            Skip
+            {t('common.skip')}
         </motion.button>
         
         {/* I Did It Button */}
@@ -68,7 +72,7 @@ export default function ActiveCard({
             onClick={handleComplete} 
             style={{ padding: '15px 30px', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(76, 175, 80, 0.4)', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-            <Check size={20} /> I Did It
+            <Check size={20} /> {t('common.done')}
         </motion.button>
       </div>
     </motion.div>

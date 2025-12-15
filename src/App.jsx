@@ -1,6 +1,3 @@
-//TODO: italian language
-//TODO: '?' section for "tutorial" on how to use the application
-
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -16,7 +13,7 @@ import ComfortDock from './components/ComfortDock';
 import HelpGuide from './components/HelpGuide';
 
 // Import Data
-import { DEFAULT_TASKS, HELP_SLIDES } from './constants';
+import { DEFAULT_TASKS } from './constants';
 
 
 function App() {
@@ -360,7 +357,6 @@ function App() {
       <AnimatePresence>
         {isHelpOpen && (
           <HelpGuide 
-            slides={HELP_SLIDES} 
             onClose={() => setIsHelpOpen(false)} 
             triggerHaptic={triggerHaptic}
           />

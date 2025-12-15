@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Trophy, X, Calendar, Settings as SettingsIcon, HelpCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Header({ 
   wins, 
@@ -10,6 +11,8 @@ export default function Header({
   openHelp,
   triggerHaptic 
 }) {
+  const { t } = useLanguage();
+
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
       
@@ -20,7 +23,7 @@ export default function Header({
         backgroundColor: 'rgba(76, 175, 80, 0.1)',
         display: 'flex', alignItems: 'center', gap: '8px'
       }}>
-        <Trophy size={16} /> Wins: {wins}
+        <Trophy size={16} /> {t('common.wins')}: {wins}
       </span>
 
       {/* TOP BUTTONS */}
@@ -35,7 +38,7 @@ export default function Header({
             {isHistoryOpen ? <X size={28} /> : <Calendar size={28} />}
           </motion.button>
 
-          {/* HELP BUTTON (NEW) */}
+          {/* HELP BUTTON */}
           <motion.button 
             whileTap={{ scale: 0.9 }} 
             onClick={() => { triggerHaptic(); openHelp(); }}

@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext'; // <--- 1. Import
 
 export default function HistoryGrid({ history }) {
+  const { t, language } = useLanguage(); // <--- 2. Get t AND language
+
   return (
     <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
         style={{ 
-            backgroundColor: 'rgba(15, 23, 42, 0.85)', 
+            backgroundColor: 'rgba(15, 23, 42, 0.9)', 
             padding: '20px', 
             borderRadius: '15px', 
             border: '1px solid #333',
@@ -19,16 +21,21 @@ export default function HistoryGrid({ history }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
         <Calendar size={20} />
         <h2 style={{ margin: 0 }}>
-          {(() => {
-            const today = new Date();
-            const past = new Date();
-            past.setDate(today.getDate() - 29);
-            
-            const startMonth = past.toLocaleString('default', { month: 'long' });
-            const endMonth = today.toLocaleString('default', { month: 'long' });
-            
-            return startMonth === endMonth ? startMonth : `${startMonth} - ${endMonth}`;
-          })()}
+          {/* We translate the title AND the month names */}
+          {t('history.title')} 
+          <span style={{ fontSize: '1.1rem', fontWeight: 'normal', marginLeft: '10px', opacity: 0.7 }}>
+            {(() => {
+                const today = new Date();
+                const past = new Date();
+                past.setDate(today.getDate() - 29);
+                
+                // Force the date to use our selected language ('en' or 'it')
+                const startMonth = past.toLocaleString(language, { month: 'short' });
+                const endMonth = today.toLocaleString(language, { month: 'short' });
+                
+                return startMonth === endMonth ? startMonth : `${startMonth} - ${endMonth}`;
+            })()}
+          </span>
         </h2>
       </div>
 
@@ -39,16 +46,14 @@ export default function HistoryGrid({ history }) {
         gap: '5px', 
         marginBottom: '20px'
       }}>
-        {/* Logic to generate last 30 days */}
         {Array.from({ length: 30 }).map((_, i) => {
             const d = new Date();
             d.setDate(d.getDate() - (29 - i)); 
             const dateKey = d.toLocaleDateString();
             const dayNumber = d.getDate();
-            const tier = history[dateKey]; // Using the prop here
+            const tier = history[dateKey];
             const isToday = i === 29; 
 
-            // Color Logic
             let bg = 'rgba(255,255,255,0.05)'; 
             let textColor = '#666'; 
             let borderColor = 'rgba(255,255,255,0.1)';
@@ -83,16 +88,16 @@ export default function HistoryGrid({ history }) {
         })}
       </div>
 
-      {/* LEGEND */}
+      {/* LEGEND (Translated) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', borderTop: '1px solid #444', paddingTop: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#555' }}></div> Survival</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#d97706' }}></div> Low</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#2563eb' }}></div> Reboot</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.7rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#16a34a' }}></div> Online</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.65rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#555' }}></div> {t('tiers.t1')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.65rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#d97706' }}></div> {t('tiers.t2')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.65rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#2563eb' }}></div> {t('tiers.t3')}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.65rem', color: '#aaa' }}><div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#16a34a' }}></div> {t('tiers.t4')}</div>
       </div>
       
       <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#666', marginTop: '15px', fontStyle: 'italic' }}>
-        "Progress is not a straight line."
+        "{t('history.quote')}"
       </p>
 
     </motion.div>

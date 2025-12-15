@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
 import { Wind } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext'; // <--- 1. Import
 
 export default function BreathingCircle() {
+  const { t } = useLanguage(); // <--- 2. Activate
+
   return (
     <motion.div 
         initial={{ opacity: 0, scale: 0.9 }} 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
         style={{ 
-            backgroundColor: 'rgba(0, 20, 40, 0.8)', // Deep Blue
+            backgroundColor: 'rgba(0, 20, 40, 0.8)', 
             backdropFilter: 'blur(10px)',
             padding: '30px', borderRadius: '25px', textAlign: 'center',
             border: '1px solid rgba(50, 100, 255, 0.2)', 
@@ -20,7 +23,7 @@ export default function BreathingCircle() {
         }}
     >
         <h2 style={{ color: '#aaccff', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
-            <Wind /> Breathe
+            <Wind /> {t('breathe.title')}
         </h2>
         
         {/* The Breathing Animation */}
@@ -54,8 +57,9 @@ export default function BreathingCircle() {
             </div>
         </div>
 
-        <p style={{ opacity: 0.7, fontSize: '0.9rem', maxWidth: '80%', lineHeight: '1.6' }}>
-            Breathe in as it grows.<br/>Hold.<br/>Breathe out as it shrinks.
+        {/* Note: whiteSpace: 'pre-line' ensures the text breaks lines correctly */}
+        <p style={{ opacity: 0.7, fontSize: '0.9rem', maxWidth: '80%', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+            {t('breathe.instructions')}
         </p>
     </motion.div> 
   );
