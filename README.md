@@ -1,16 +1,57 @@
-# React + Vite
+# 🌙 Nudge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**A gentle companion for low-energy days.**
 
-Currently, two official plugins are available:
+Nudge is a privacy-first, offline-capable Progressive Web App (PWA) designed to help users navigate depression, burnout, or sensory overload. It replaces the pressure of "Productivity" with the compassion of "Functionality," adapting tasks to your current energy level.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 The Philosophy: Zero Friction
 
-## React Compiler
+When you are at your lowest, even opening an app feels impossible. Nudge is built on three core design principles:
+1.  **No Login:** You shouldn't have to remember a password to feel better.
+2.  **No Loading:** The app works instantly, even in Airplane Mode.
+3.  **No Data Tracking:** Your thoughts and history live on your phone, not a server.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Key Features
 
-## Expanding the ESLint configuration
+### 🔋 Energy-Adaptive Tasks
+Instead of a to-do list, Nudge asks: *"Where is your battery at?"*
+*   **Survival (0-10%):** Tasks like "Unclench jaw" or "Drink a sip of water."
+*   **Low Power (10-30%):** Tasks like "Sit up" or "Open a window."
+*   **Online (60%+):** Actual productivity tasks.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🛡️ The Sanctuary Tools
+A built-in toolkit to manage panic and stress instantly:
+*   **The Void:** Type out negative thoughts and visually "burn" them away.
+*   **Breathing Circle:** A haptic-guided 4-4-4 breathing exercise.
+*   **Soundscapes:** Seamless, gapless audio loops (Rain & Fire) powered by the Web Audio API.
+*   **Lifeline:** One-tap access to trusted contacts via WhatsApp (with optional GPS location).
+
+### 📊 Insight & History
+*   **Heatmap Calendar:** Visualizes your energy patterns over the last 30 days.
+*   **Wins Counter:** Tracks micro-victories to build momentum.
+*   **Data Backup:** Full import/export functionality to keep your data safe without cloud accounts.
+
+## 🛠️ Tech Stack
+
+Built with a focus on performance and modularity.
+
+*   **Core:** [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+*   **Animations:** [Framer Motion](https://www.framer.com/motion/) (Fluid transitions & micro-interactions)
+*   **Icons:** [Lucide React](https://lucide.dev/)
+*   **PWA:** `vite-plugin-pwa` (Service Workers for offline capabilities)
+*   **Audio:** Native Web Audio API (No external players)
+*   **State:** React Context API + LocalStorage
+*   **i18n:** Custom dictionary-based translation engine (English/Italian)
+
+## 📂 Project Structure
+
+The project follows a clean, component-based architecture:
+
+```text
+src/
+├── components/      # Isolated UI modules (Header, Dock, Settings, etc.)
+├── context/         # Global State (Language Context)
+├── locales/         # Dictionaries for i18n (en.js, it.js)
+├── constants.js     # Static configuration & default data
+├── App.jsx          # Main logic controller
+└── main.jsx         # Entry point & Provider wrapping
