@@ -1,4 +1,3 @@
-//TODO: Refactoring the "monolith"
 //TODO: italian language
 //TODO: '?' section for "tutorial" on how to use the application
 
@@ -14,9 +13,10 @@ import HistoryGrid from './components/HistoryGrid';
 import EnergyDashboard from './components/EnergyDashboard';
 import ActiveCard from './components/ActiveCard';
 import ComfortDock from './components/ComfortDock';
+import HelpGuide from './components/HelpGuide';
 
 // Import Data
-import { DEFAULT_TASKS } from './constants';
+import { DEFAULT_TASKS, HELP_SLIDES } from './constants';
 
 
 function App() {
@@ -25,12 +25,14 @@ function App() {
   const [isVoidOpen, setIsVoidOpen] = useState(false);
   const [isBreathingOpen, setIsBreathingOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   // Toggle Helpers (Now with Haptics)
   const openSettings = () => { triggerHaptic(); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsSettingsOpen(!isSettingsOpen); };
   const openVoid = () => { triggerHaptic(); setIsSettingsOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(false); setIsVoidOpen(!isVoidOpen); };
   const openBreathing = () => { triggerHaptic(); setIsSettingsOpen(false); setIsVoidOpen(false); setIsHistoryOpen(false); setIsBreathingOpen(!isBreathingOpen); };
   const openHistory = () => { triggerHaptic(); setIsSettingsOpen(false); setIsVoidOpen(false); setIsBreathingOpen(false); setIsHistoryOpen(!isHistoryOpen); };
+  const openHelp = () => { setIsHelpOpen(true); };
 
   // --- DATA: HISTORY LOG ---
   const [history, setHistory] = useState(() => {
@@ -285,6 +287,7 @@ function App() {
         isHistoryOpen={isHistoryOpen}
         openSettings={openSettings}
         isSettingsOpen={isSettingsOpen}
+        openHelp={openHelp}
         triggerHaptic={triggerHaptic}
       />
 
@@ -353,7 +356,17 @@ function App() {
         sendWhatsapp={sendWhatsapp}
         triggerHaptic={triggerHaptic}
       />
-      
+
+      <AnimatePresence>
+        {isHelpOpen && (
+          <HelpGuide 
+            slides={HELP_SLIDES} 
+            onClose={() => setIsHelpOpen(false)} 
+            triggerHaptic={triggerHaptic}
+          />
+        )}
+      </AnimatePresence>
+
     </div>
   )
 }
