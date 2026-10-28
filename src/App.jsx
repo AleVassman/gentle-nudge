@@ -164,55 +164,73 @@ function App() {
     { level: 4, label: "Online", desc: "Ready to do things." }
   ];
 
-  // --- MULTI-TRACK AUDIO ENGINE ---
+// --- MULTI-TRACK AUDIO ENGINE (Background & Lock-Screen Compatible) ---
   const [currentSound, setCurrentSound] = useState(null); 
   const [isSoundMenuOpen, setIsSoundMenuOpen] = useState(false);
-  
-  const audioCtxRef = useRef(null);
-  const sourceNodeRef = useRef(null);
+  const audioRef = useRef(null);
 
-  const playSound = async (filename, soundName) => {
-    // 1. Setup Context
-    if (!audioCtxRef.current) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtxRef.current = new AudioContext();
-    }
-    const ctx = audioCtxRef.current;
-
-    // 2. Resume if suspended
-    if (ctx.state === 'suspended') await ctx.resume();
-
-    // 3. STOP logic (If clicking the same sound)
+  const playSound = (filename, soundName) => {
+    // 1. If clicking the currently playing sound, stop/pause it
     if (currentSound === soundName) {
-      if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
-        sourceNodeRef.current = null;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
       setCurrentSound(null);
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'none';
+      }
       return;
     }
 
-    // 4. SWITCH logic (Stop old, start new)
-    if (sourceNodeRef.current) {
-      sourceNodeRef.current.stop();
+    // 2. Stop any existing sound before switching
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
 
     try {
-      const response = await fetch('/' + filename);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.loop = true;
-      
-      source.connect(ctx.destination);
-      source.start();
-      
-      sourceNodeRef.current = source;
-      setCurrentSound(soundName); 
+      // 3. Create the native HTML5 Audio player
+      const audio = new Audio('/' + filename);
+      audio.loop = true;
+      audioRef.current = audio;
+
+      // 4. Start playback
+      audio.play().then(() => {
+        setCurrentSound(soundName);
+
+        // 5. Register with Android Media Session for Lock-Screen Playback
+        if ('mediaSession' in navigator) {
+          const displayTitle = soundName === 'rain' ? 'Rain Sounds' : 'Campfire';
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: displayTitle,
+            artist: 'Nudge',
+            album: 'Sanctuary',
+            artwork: [
+              { src: '/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
+            ]
+          });
+
+          navigator.mediaSession.playbackState = 'playing';
+
+          navigator.mediaSession.setActionHandler('play', () => {
+            audioRef.current?.play();
+            setCurrentSound(soundName);
+            navigator.mediaSession.playbackState = 'playing';
+          });
+
+          navigator.mediaSession.setActionHandler('pause', () => {
+            audioRef.current?.pause();
+            setCurrentSound(null);
+            navigator.mediaSession.playbackState = 'paused';
+          });
+        }
+      }).catch((err) => {
+        console.error('Audio playback error:', err);
+        setCurrentSound(null);
+      });
     } catch (error) {
-      console.error("Error playing audio:", error);
+      console.error('Audio initialization error:', error);
       setCurrentSound(null);
     }
   };
